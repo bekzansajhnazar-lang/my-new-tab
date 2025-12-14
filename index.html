@@ -5,104 +5,69 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>New Tab</title>
 
-  <!-- =====================
-       СТИЛИ (CSS)
-  ====================== -->
   <style>
-    /* Сброс */
+    /* =====================
+       БАЗА
+    ====================== */
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
 
-    /* Цветовая схема */
     :root {
-      --bg-main: #0b1220;
-      --bg-card: #111a2e;
+      --bg-1: #020617;
+      --bg-2: #020b2a;
+      --card-bg: rgba(15, 23, 42, 0.6);
       --text-main: #e5e7eb;
       --text-muted: #9ca3af;
-      --accent: #3b82f6;
-      --shadow-soft: 0 20px 40px rgba(0, 0, 0, 0.4);
+      --accent: #38bdf8;
+      --shadow: 0 30px 60px rgba(0, 0, 0, 0.45);
     }
 
     body {
       height: 100vh;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
         Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, sans-serif;
-      background: radial-gradient(circle at top, #111827, var(--bg-main));
       color: var(--text-main);
       display: flex;
       align-items: center;
       justify-content: center;
+      background: linear-gradient(
+        120deg,
+        var(--bg-1),
+        var(--bg-2),
+        #020617
+      );
+      background-size: 400% 400%;
+      animation: gradientMove 20s ease infinite;
       overflow: hidden;
     }
 
-    /* Контейнер */
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* =====================
+       КАРТОЧКА
+    ====================== */
     .container {
+      width: min(92%, 560px);
+      padding: 40px 36px;
+      border-radius: 28px;
+      background: var(--card-bg);
+      backdrop-filter: blur(18px);
+      box-shadow: var(--shadow);
       text-align: center;
-      padding: 40px 32px;
-      background: rgba(17, 26, 46, 0.55);
-      backdrop-filter: blur(16px);
-      border-radius: 24px;
-      box-shadow: var(--shadow-soft);
       animation: fadeIn 1s ease forwards;
-      width: min(90%, 520px);
     }
 
-    /* Приветствие */
-    .greeting {
-      font-size: 18px;
-      color: var(--text-muted);
-      margin-bottom: 12px;
-    }
-
-    /* Часы */
-    .time {
-      font-size: clamp(64px, 10vw, 96px);
-      font-weight: 700;
-      letter-spacing: 2px;
-      color: #ffffff;
-    }
-
-    /* Дата */
-    .date {
-      margin-top: 8px;
-      font-size: 16px;
-      color: var(--text-muted);
-    }
-
-    /* Поиск */
-    .search {
-      margin-top: 32px;
-    }
-
-    .search input {
-      width: 100%;
-      padding: 14px 18px;
-      border-radius: 14px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      background: #0f172a;
-      color: var(--text-main);
-      font-size: 16px;
-      outline: none;
-      transition: all 0.3s ease;
-    }
-
-    .search input::placeholder {
-      color: #6b7280;
-    }
-
-    .search input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
-    }
-
-    /* Анимация появления */
     @keyframes fadeIn {
       from {
         opacity: 0;
-        transform: translateY(20px) scale(0.98);
+        transform: translateY(30px) scale(0.97);
       }
       to {
         opacity: 1;
@@ -110,71 +75,152 @@
       }
     }
 
-    /* Адаптив */
-    @media (max-width: 480px) {
-      .container {
-        padding: 32px 24px;
-      }
+    .greeting {
+      font-size: 18px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
 
-      .greeting {
-        font-size: 16px;
+    .time {
+      font-size: clamp(64px, 10vw, 96px);
+      font-weight: 700;
+      letter-spacing: 2px;
+    }
+
+    .date {
+      margin-top: 6px;
+      font-size: 16px;
+      color: var(--text-muted);
+    }
+
+    /* =====================
+       ПОГОДА
+    ====================== */
+    .weather {
+      margin-top: 20px;
+      font-size: 15px;
+      color: #cbd5f5;
+    }
+
+    /* =====================
+       ПОИСК
+    ====================== */
+    .search {
+      margin-top: 28px;
+    }
+
+    .search input {
+      width: 100%;
+      padding: 14px 18px;
+      border-radius: 16px;
+      background: #020617;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--text-main);
+      font-size: 16px;
+      outline: none;
+      transition: 0.3s ease;
+    }
+
+    .search input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
+    }
+
+    /* =====================
+       БЫСТРЫЕ ССЫЛКИ
+    ====================== */
+    .links {
+      margin-top: 28px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .link {
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-main);
+      text-decoration: none;
+      font-size: 14px;
+      transition: 0.3s ease;
+    }
+
+    .link:hover {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    @media (max-width: 480px) {
+      .links {
+        grid-template-columns: repeat(2, 1fr);
       }
     }
   </style>
 </head>
 
 <body>
-  <!-- =====================
-       ОСНОВНОЙ КОНТЕНТ
-  ====================== -->
   <div class="container">
-    <div class="greeting">Добро пожаловать</div>
+    <div class="greeting">Добро пожаловать 👋</div>
 
     <div class="time" id="time">00:00</div>
-    <div class="date" id="date">Загрузка...</div>
+    <div class="date" id="date">—</div>
 
-    <!-- Поиск Google -->
-    <form
-      class="search"
-      action="https://www.google.com/search"
-      method="get"
-    >
-      <input
-        type="text"
-        name="q"
-        placeholder="Поиск в Google..."
-        autofocus
-      />
+    <div class="weather" id="weather">Загрузка погоды...</div>
+
+    <form class="search" action="https://www.google.com/search" method="get">
+      <input type="text" name="q" placeholder="Поиск в Google..." autofocus />
     </form>
+
+    <div class="links">
+      <a class="link" href="https://google.com">Google</a>
+      <a class="link" href="https://youtube.com">YouTube</a>
+      <a class="link" href="https://github.com">GitHub</a>
+      <a class="link" href="https://chat.openai.com">ChatGPT</a>
+    </div>
   </div>
 
-  <!-- =====================
-       СКРИПТЫ (JS)
-  ====================== -->
   <script>
+    /* ===== ЧАСЫ И ДАТА ===== */
     const timeEl = document.getElementById("time");
     const dateEl = document.getElementById("date");
 
     function updateTime() {
       const now = new Date();
+      timeEl.textContent =
+        String(now.getHours()).padStart(2, "0") +
+        ":" +
+        String(now.getMinutes()).padStart(2, "0");
 
-      const hours = String(now.getHours()).padStart(2, "0");
-      const minutes = String(now.getMinutes()).padStart(2, "0");
-
-      timeEl.textContent = `${hours}:${minutes}`;
-
-      const dateFormatter = new Intl.DateTimeFormat("ru-RU", {
+      dateEl.textContent = new Intl.DateTimeFormat("ru-RU", {
         weekday: "long",
         day: "numeric",
         month: "long",
         year: "numeric",
-      });
-
-      dateEl.textContent = dateFormatter.format(now);
+      }).format(now);
     }
 
     updateTime();
     setInterval(updateTime, 1000);
+
+    /* ===== ПОГОДА ===== */
+    const weatherEl = document.getElementById("weather");
+    const API_KEY = "ВАШ_API_КЛЮЧ_OPENWEATHER";
+
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+      const { latitude, longitude } = pos.coords;
+      const url = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&lang=ru&appid=${API_KEY}`;
+
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        weatherEl.textContent =
+          `${data.name}: ${Math.round(data.main.temp)}°C · ${data.weather[0].description}`;
+      } catch {
+        weatherEl.textContent = "Не удалось загрузить погоду";
+      }
+    });
   </script>
 </body>
 </html>
