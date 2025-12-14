@@ -1,8 +1,8 @@
-{
+ {
   "manifest_version": 3,
-  "name": "Modern New Tab",
-  "description": "Минималистичная современная новая вкладка",
-  "version": "1.0",
+  "name": "Modern New Tab Pro",
+  "description": "Современная новая вкладка с настройками",
+  "version": "2.0",
   "chrome_url_overrides": {
     "newtab": "index.html"
   }
