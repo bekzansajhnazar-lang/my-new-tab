@@ -1,226 +1,246 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>New Tab</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>New Tab</title>
 
-  <style>
-    /* =====================
-       БАЗА
-    ====================== */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+<style>
+/* ================= RESET ================= */
+*{margin:0;padding:0;box-sizing:border-box}
 
-    :root {
-      --bg-1: #020617;
-      --bg-2: #020b2a;
-      --card-bg: rgba(15, 23, 42, 0.6);
-      --text-main: #e5e7eb;
-      --text-muted: #9ca3af;
-      --accent: #38bdf8;
-      --shadow: 0 30px 60px rgba(0, 0, 0, 0.45);
-    }
+/* ================= THEME ================= */
+:root{
+  --bg:#020617;
+  --card:rgba(15,23,42,.65);
+  --text:#e5e7eb;
+  --muted:#9ca3af;
+  --accent:#38bdf8;
+}
 
-    body {
-      height: 100vh;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-        Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, sans-serif;
-      color: var(--text-main);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(
-        120deg,
-        var(--bg-1),
-        var(--bg-2),
-        #020617
-      );
-      background-size: 400% 400%;
-      animation: gradientMove 20s ease infinite;
-      overflow: hidden;
-    }
+body.light{
+  --bg:#f1f5f9;
+  --card:rgba(255,255,255,.7);
+  --text:#020617;
+  --muted:#475569;
+  --accent:#2563eb;
+}
 
-    @keyframes gradientMove {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
+/* ================= BODY ================= */
+body{
+  height:100vh;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:var(--bg);
+  background-size:cover;
+  background-position:center;
+  color:var(--text);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:.4s ease;
+}
 
-    /* =====================
-       КАРТОЧКА
-    ====================== */
-    .container {
-      width: min(92%, 560px);
-      padding: 40px 36px;
-      border-radius: 28px;
-      background: var(--card-bg);
-      backdrop-filter: blur(18px);
-      box-shadow: var(--shadow);
-      text-align: center;
-      animation: fadeIn 1s ease forwards;
-    }
+/* затемнение поверх фото */
+.overlay{
+  position:fixed;
+  inset:0;
+  background:linear-gradient(
+    to bottom,
+    rgba(2,6,23,.65),
+    rgba(2,6,23,.9)
+  );
+  z-index:0;
+}
 
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(30px) scale(0.97);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
+body.light .overlay{
+  background:linear-gradient(
+    to bottom,
+    rgba(241,245,249,.65),
+    rgba(241,245,249,.9)
+  );
+}
 
-    .greeting {
-      font-size: 18px;
-      color: var(--text-muted);
-      margin-bottom: 12px;
-    }
+/* ================= CARD ================= */
+.container{
+  position:relative;
+  z-index:1;
+  width:min(92%,580px);
+  padding:36px;
+  border-radius:28px;
+  backdrop-filter:blur(18px);
+  background:var(--card);
+  box-shadow:0 30px 60px rgba(0,0,0,.45);
+  text-align:center;
+  animation:enter .8s ease;
+}
 
-    .time {
-      font-size: clamp(64px, 10vw, 96px);
-      font-weight: 700;
-      letter-spacing: 2px;
-    }
+@keyframes enter{
+  from{opacity:0;transform:translateY(30px) scale(.97)}
+  to{opacity:1;transform:none}
+}
 
-    .date {
-      margin-top: 6px;
-      font-size: 16px;
-      color: var(--text-muted);
-    }
+/* ================= TOP ================= */
+.top{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:16px;
+}
 
-    /* =====================
-       ПОГОДА
-    ====================== */
-    .weather {
-      margin-top: 20px;
-      font-size: 15px;
-      color: #cbd5f5;
-    }
+button{
+  background:none;
+  border:none;
+  color:var(--muted);
+  cursor:pointer;
+  font-size:18px;
+}
 
-    /* =====================
-       ПОИСК
-    ====================== */
-    .search {
-      margin-top: 28px;
-    }
+/* ================= CONTENT ================= */
+.time{
+  font-size:clamp(64px,10vw,96px);
+  font-weight:700;
+}
 
-    .search input {
-      width: 100%;
-      padding: 14px 18px;
-      border-radius: 16px;
-      background: #020617;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      color: var(--text-main);
-      font-size: 16px;
-      outline: none;
-      transition: 0.3s ease;
-    }
+.date{color:var(--muted);margin-bottom:12px}
 
-    .search input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
-    }
+.greeting{
+  font-size:18px;
+  margin-bottom:20px;
+}
 
-    /* =====================
-       БЫСТРЫЕ ССЫЛКИ
-    ====================== */
-    .links {
-      margin-top: 28px;
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-    }
+/* ================= SEARCH ================= */
+.search input{
+  width:100%;
+  padding:14px 18px;
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,.12);
+  background:#020617;
+  color:inherit;
+  outline:none;
+}
 
-    .link {
-      padding: 12px;
-      border-radius: 14px;
-      background: rgba(255, 255, 255, 0.04);
-      color: var(--text-main);
-      text-decoration: none;
-      font-size: 14px;
-      transition: 0.3s ease;
-    }
+/* ================= LINKS ================= */
+.links{
+  margin-top:22px;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+}
 
-    .link:hover {
-      background: rgba(56, 189, 248, 0.15);
-      color: var(--accent);
-      transform: translateY(-2px);
-    }
+.link{
+  padding:12px;
+  border-radius:14px;
+  background:rgba(255,255,255,.06);
+  color:inherit;
+  text-decoration:none;
+  font-size:14px;
+  transition:.3s;
+}
 
-    @media (max-width: 480px) {
-      .links {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-  </style>
+.link:hover{
+  background:rgba(56,189,248,.2);
+  transform:translateY(-2px);
+}
+
+@media(max-width:480px){
+  .links{grid-template-columns:repeat(2,1fr)}
+}
+</style>
 </head>
 
 <body>
-  <div class="container">
-    <div class="greeting">Добро пожаловать 👋</div>
+<div class="overlay"></div>
 
-    <div class="time" id="time">00:00</div>
-    <div class="date" id="date">—</div>
-
-    <div class="weather" id="weather">Загрузка погоды...</div>
-
-    <form class="search" action="https://www.google.com/search" method="get">
-      <input type="text" name="q" placeholder="Поиск в Google..." autofocus />
-    </form>
-
-    <div class="links">
-      <a class="link" href="https://google.com">Google</a>
-      <a class="link" href="https://youtube.com">YouTube</a>
-      <a class="link" href="https://github.com">GitHub</a>
-      <a class="link" href="https://chat.openai.com">ChatGPT</a>
-    </div>
+<div class="container">
+  <div class="top">
+    <button id="themeBtn">🌙</button>
+    <button id="bgBtn">🖼️</button>
   </div>
 
-  <script>
-    /* ===== ЧАСЫ И ДАТА ===== */
-    const timeEl = document.getElementById("time");
-    const dateEl = document.getElementById("date");
+  <div class="time" id="time"></div>
+  <div class="date" id="date"></div>
+  <div class="greeting" id="greeting"></div>
 
-    function updateTime() {
-      const now = new Date();
-      timeEl.textContent =
-        String(now.getHours()).padStart(2, "0") +
-        ":" +
-        String(now.getMinutes()).padStart(2, "0");
+  <form class="search" action="https://google.com/search">
+    <input name="q" placeholder="Поиск в Google..." autofocus />
+  </form>
 
-      dateEl.textContent = new Intl.DateTimeFormat("ru-RU", {
-        weekday: "long",
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      }).format(now);
-    }
+  <div class="links" id="links"></div>
+</div>
 
-    updateTime();
-    setInterval(updateTime, 1000);
+<script>
+/* ========== TIME ========== */
+const timeEl=document.getElementById("time");
+const dateEl=document.getElementById("date");
 
-    /* ===== ПОГОДА ===== */
-    const weatherEl = document.getElementById("weather");
-    const API_KEY = "ВАШ_API_КЛЮЧ_OPENWEATHER";
+function tick(){
+  const d=new Date();
+  timeEl.textContent=
+    String(d.getHours()).padStart(2,"0")+":"+
+    String(d.getMinutes()).padStart(2,"0");
+  dateEl.textContent=d.toLocaleDateString("ru-RU",
+    {weekday:"long",day:"numeric",month:"long"});
+}
+tick();setInterval(tick,1000);
 
-    navigator.geolocation.getCurrentPosition(async (pos) => {
-      const { latitude, longitude } = pos.coords;
-      const url = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&lang=ru&appid=${API_KEY}`;
+/* ========== GREETING ========== */
+let name=localStorage.getItem("name");
+if(!name){
+  name=prompt("Как вас называть?");
+  localStorage.setItem("name",name);
+}
+document.getElementById("greeting").textContent=`Добро пожаловать, ${name} 👋`;
 
-      try {
-        const res = await fetch(url);
-        const data = await res.json();
-        weatherEl.textContent =
-          `${data.name}: ${Math.round(data.main.temp)}°C · ${data.weather[0].description}`;
-      } catch {
-        weatherEl.textContent = "Не удалось загрузить погоду";
+/* ========== THEME ========== */
+const themeBtn=document.getElementById("themeBtn");
+if(localStorage.getItem("theme")==="light")
+  document.body.classList.add("light");
+
+themeBtn.onclick=()=>{
+  document.body.classList.toggle("light");
+  localStorage.setItem("theme",
+    document.body.classList.contains("light")?"light":"dark");
+};
+
+/* ========== BACKGROUND (NO API) ========== */
+function loadBg(){
+  const url=`https://source.unsplash.com/1920x1080/?nature,landscape,dark&sig=${Date.now()}`;
+  document.body.style.backgroundImage=`url(${url})`;
+}
+document.getElementById("bgBtn").onclick=loadBg;
+loadBg();
+
+/* ========== LINKS ========== */
+const defaults=[
+  {name:"Google",url:"https://google.com"},
+  {name:"YouTube",url:"https://youtube.com"},
+  {name:"GitHub",url:"https://github.com"},
+  {name:"ChatGPT",url:"https://chat.openai.com"}
+];
+
+let links=JSON.parse(localStorage.getItem("links"))||defaults;
+const linksEl=document.getElementById("links");
+
+function renderLinks(){
+  linksEl.innerHTML="";
+  links.forEach((l,i)=>{
+    const a=document.createElement("a");
+    a.className="link";
+    a.textContent=l.name;
+    a.href=l.url;
+    a.onclick=e=>{
+      if(e.ctrlKey){
+        const name=prompt("Название",l.name);
+        const url=prompt("URL",l.url);
+        links[i]={name,url};
+        localStorage.setItem("links",JSON.stringify(links));
+        renderLinks();
+        e.preventDefault();
       }
-    });
-  </script>
+    };
+    linksEl.appendChild(a);
+  });
+}
+renderLinks();
+</script>
 </body>
 </html>
