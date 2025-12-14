@@ -1,23 +1,180 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>Моя новая вкладка</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>New Tab</title>
+
+  <!-- =====================
+       СТИЛИ (CSS)
+  ====================== -->
   <style>
-    body {
+    /* Сброс */
+    * {
       margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* Цветовая схема */
+    :root {
+      --bg-main: #0b1220;
+      --bg-card: #111a2e;
+      --text-main: #e5e7eb;
+      --text-muted: #9ca3af;
+      --accent: #3b82f6;
+      --shadow-soft: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    body {
       height: 100vh;
-      background: linear-gradient(135deg, #0f172a, #1e293b);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, sans-serif;
+      background: radial-gradient(circle at top, #111827, var(--bg-main));
+      color: var(--text-main);
       display: flex;
       align-items: center;
       justify-content: center;
-      color: white;
-      font-family: Arial, sans-serif;
+      overflow: hidden;
+    }
+
+    /* Контейнер */
+    .container {
       text-align: center;
+      padding: 40px 32px;
+      background: rgba(17, 26, 46, 0.55);
+      backdrop-filter: blur(16px);
+      border-radius: 24px;
+      box-shadow: var(--shadow-soft);
+      animation: fadeIn 1s ease forwards;
+      width: min(90%, 520px);
+    }
+
+    /* Приветствие */
+    .greeting {
+      font-size: 18px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    /* Часы */
+    .time {
+      font-size: clamp(64px, 10vw, 96px);
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: #ffffff;
+    }
+
+    /* Дата */
+    .date {
+      margin-top: 8px;
+      font-size: 16px;
+      color: var(--text-muted);
+    }
+
+    /* Поиск */
+    .search {
+      margin-top: 32px;
+    }
+
+    .search input {
+      width: 100%;
+      padding: 14px 18px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: #0f172a;
+      color: var(--text-main);
+      font-size: 16px;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .search input::placeholder {
+      color: #6b7280;
+    }
+
+    .search input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+    }
+
+    /* Анимация появления */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    /* Адаптив */
+    @media (max-width: 480px) {
+      .container {
+        padding: 32px 24px;
+      }
+
+      .greeting {
+        font-size: 16px;
+      }
     }
   </style>
 </head>
+
 <body>
-  <h1>Привет 👋</h1>
+  <!-- =====================
+       ОСНОВНОЙ КОНТЕНТ
+  ====================== -->
+  <div class="container">
+    <div class="greeting">Добро пожаловать</div>
+
+    <div class="time" id="time">00:00</div>
+    <div class="date" id="date">Загрузка...</div>
+
+    <!-- Поиск Google -->
+    <form
+      class="search"
+      action="https://www.google.com/search"
+      method="get"
+    >
+      <input
+        type="text"
+        name="q"
+        placeholder="Поиск в Google..."
+        autofocus
+      />
+    </form>
+  </div>
+
+  <!-- =====================
+       СКРИПТЫ (JS)
+  ====================== -->
+  <script>
+    const timeEl = document.getElementById("time");
+    const dateEl = document.getElementById("date");
+
+    function updateTime() {
+      const now = new Date();
+
+      const hours = String(now.getHours()).padStart(2, "0");
+      const minutes = String(now.getMinutes()).padStart(2, "0");
+
+      timeEl.textContent = `${hours}:${minutes}`;
+
+      const dateFormatter = new Intl.DateTimeFormat("ru-RU", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+
+      dateEl.textContent = dateFormatter.format(now);
+    }
+
+    updateTime();
+    setInterval(updateTime, 1000);
+  </script>
 </body>
 </html>
