@@ -1,246 +1,714 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>New Tab</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Новая вкладка</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-<style>
-/* ================= RESET ================= */
-*{margin:0;padding:0;box-sizing:border-box}
+        :root {
+            --bg-overlay-dark: linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(30, 41, 59, 0.75));
+            --bg-overlay-light: linear-gradient(135deg, rgba(241, 245, 249, 0.85), rgba(226, 232, 240, 0.75));
+            --glass-bg-dark: rgba(15, 23, 42, 0.6);
+            --glass-bg-light: rgba(255, 255, 255, 0.6);
+            --text-primary-dark: #f1f5f9;
+            --text-primary-light: #0f172a;
+            --text-secondary-dark: #cbd5e1;
+            --text-secondary-light: #475569;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --shadow-dark: 0 8px 32px rgba(0, 0, 0, 0.3);
+            --shadow-light: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
 
-/* ================= THEME ================= */
-:root{
-  --bg:#020617;
-  --card:rgba(15,23,42,.65);
-  --text:#e5e7eb;
-  --muted:#9ca3af;
-  --accent:#38bdf8;
-}
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            transition: color 0.3s ease;
+        }
 
-body.light{
-  --bg:#f1f5f9;
-  --card:rgba(255,255,255,.7);
-  --text:#020617;
-  --muted:#475569;
-  --accent:#2563eb;
-}
+        /* Фоновое изображение */
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            z-index: -2;
+            transition: opacity 0.5s ease;
+        }
 
-/* ================= BODY ================= */
-body{
-  height:100vh;
-  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  background:var(--bg);
-  background-size:cover;
-  background-position:center;
-  color:var(--text);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  transition:.4s ease;
-}
+        .background-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            transition: background 0.3s ease;
+        }
 
-/* затемнение поверх фото */
-.overlay{
-  position:fixed;
-  inset:0;
-  background:linear-gradient(
-    to bottom,
-    rgba(2,6,23,.65),
-    rgba(2,6,23,.9)
-  );
-  z-index:0;
-}
+        body.dark .background-overlay {
+            background: var(--bg-overlay-dark);
+        }
 
-body.light .overlay{
-  background:linear-gradient(
-    to bottom,
-    rgba(241,245,249,.65),
-    rgba(241,245,249,.9)
-  );
-}
+        body.light .background-overlay {
+            background: var(--bg-overlay-light);
+        }
 
-/* ================= CARD ================= */
-.container{
-  position:relative;
-  z-index:1;
-  width:min(92%,580px);
-  padding:36px;
-  border-radius:28px;
-  backdrop-filter:blur(18px);
-  background:var(--card);
-  box-shadow:0 30px 60px rgba(0,0,0,.45);
-  text-align:center;
-  animation:enter .8s ease;
-}
+        body.dark {
+            color: var(--text-primary-dark);
+        }
 
-@keyframes enter{
-  from{opacity:0;transform:translateY(30px) scale(.97)}
-  to{opacity:1;transform:none}
-}
+        body.light {
+            color: var(--text-primary-light);
+        }
 
-/* ================= TOP ================= */
-.top{
-  display:flex;
-  justify-content:space-between;
-  margin-bottom:16px;
-}
+        /* Главный контейнер */
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            padding: 2rem;
+            animation: fadeIn 0.6s ease-out;
+        }
 
-button{
-  background:none;
-  border:none;
-  color:var(--muted);
-  cursor:pointer;
-  font-size:18px;
-}
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-/* ================= CONTENT ================= */
-.time{
-  font-size:clamp(64px,10vw,96px);
-  font-weight:700;
-}
+        /* Часы */
+        .clock {
+            font-size: clamp(4rem, 12vw, 8rem);
+            font-weight: 300;
+            letter-spacing: -0.02em;
+            margin-bottom: 1rem;
+            text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            animation: slideDown 0.8s ease-out;
+        }
 
-.date{color:var(--muted);margin-bottom:12px}
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-.greeting{
-  font-size:18px;
-  margin-bottom:20px;
-}
+        /* Дата */
+        .date {
+            font-size: clamp(1rem, 2.5vw, 1.5rem);
+            font-weight: 400;
+            margin-bottom: 2rem;
+            animation: slideDown 0.8s ease-out 0.1s backwards;
+        }
 
-/* ================= SEARCH ================= */
-.search input{
-  width:100%;
-  padding:14px 18px;
-  border-radius:16px;
-  border:1px solid rgba(255,255,255,.12);
-  background:#020617;
-  color:inherit;
-  outline:none;
-}
+        body.dark .date {
+            color: var(--text-secondary-dark);
+        }
 
-/* ================= LINKS ================= */
-.links{
-  margin-top:22px;
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:12px;
-}
+        body.light .date {
+            color: var(--text-secondary-light);
+        }
 
-.link{
-  padding:12px;
-  border-radius:14px;
-  background:rgba(255,255,255,.06);
-  color:inherit;
-  text-decoration:none;
-  font-size:14px;
-  transition:.3s;
-}
+        /* Приветствие */
+        .greeting {
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            font-weight: 500;
+            margin-bottom: 3rem;
+            animation: slideDown 0.8s ease-out 0.2s backwards;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
 
-.link:hover{
-  background:rgba(56,189,248,.2);
-  transform:translateY(-2px);
-}
+        .greeting:hover {
+            transform: scale(1.02);
+        }
 
-@media(max-width:480px){
-  .links{grid-template-columns:repeat(2,1fr)}
-}
-</style>
+        /* Поиск */
+        .search-container {
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 3rem;
+            animation: slideUp 0.8s ease-out 0.3s backwards;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        body.dark .search-box {
+            background: var(--glass-bg-dark);
+            color: var(--text-primary-dark);
+            box-shadow: var(--shadow-dark);
+        }
+
+        body.light .search-box {
+            background: var(--glass-bg-light);
+            color: var(--text-primary-light);
+            box-shadow: var(--shadow-light);
+        }
+
+        .search-box::placeholder {
+            opacity: 0.6;
+        }
+
+        .search-box:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(59, 130, 246, 0.3);
+        }
+
+        /* Быстрые ссылки */
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 120px));
+            gap: 1.5rem;
+            animation: slideUp 0.8s ease-out 0.4s backwards;
+        }
+
+        .link-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            transition: transform 0.2s ease;
+            cursor: pointer;
+        }
+
+        .link-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .link-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        body.dark .link-icon {
+            background: var(--glass-bg-dark);
+            box-shadow: var(--shadow-dark);
+        }
+
+        body.light .link-icon {
+            background: var(--glass-bg-light);
+            box-shadow: var(--shadow-light);
+        }
+
+        .link-item:hover .link-icon {
+            box-shadow: 0 12px 40px rgba(59, 130, 246, 0.4);
+        }
+
+        .link-name {
+            font-size: 0.9rem;
+            text-align: center;
+            max-width: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        body.dark .link-name {
+            color: var(--text-secondary-dark);
+        }
+
+        body.light .link-name {
+            color: var(--text-secondary-light);
+        }
+
+        /* Кнопки управления */
+        .controls {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            display: flex;
+            gap: 1rem;
+            z-index: 100;
+        }
+
+        .control-btn {
+            width: 48px;
+            height: 48px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        body.dark .control-btn {
+            background: var(--glass-bg-dark);
+            color: var(--text-primary-dark);
+            box-shadow: var(--shadow-dark);
+        }
+
+        body.light .control-btn {
+            background: var(--glass-bg-light);
+            color: var(--text-primary-light);
+            box-shadow: var(--shadow-light);
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px) scale(1.05);
+            background: var(--accent);
+            color: white;
+        }
+
+        /* Модальное окно */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            padding: 2rem;
+            border-radius: 20px;
+            max-width: 400px;
+            width: 90%;
+            animation: slideUp 0.3s ease;
+        }
+
+        body.dark .modal-content {
+            background: var(--glass-bg-dark);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: var(--shadow-dark);
+        }
+
+        body.light .modal-content {
+            background: var(--glass-bg-light);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: var(--shadow-light);
+        }
+
+        .modal-content h2 {
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        body.dark .modal-content input {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary-dark);
+        }
+
+        body.light .modal-content input {
+            background: rgba(0, 0, 0, 0.05);
+            color: var(--text-primary-light);
+        }
+
+        .modal-content input:focus {
+            box-shadow: 0 0 0 2px var(--accent);
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .modal-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .modal-btn.primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .modal-btn.primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+        }
+
+        .modal-btn.secondary {
+            background: transparent;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+        }
+
+        .modal-btn.secondary:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .controls {
+                top: 1rem;
+                right: 1rem;
+            }
+
+            .control-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 1.1rem;
+            }
+
+            .quick-links {
+                grid-template-columns: repeat(auto-fit, minmax(80px, 100px));
+                gap: 1rem;
+            }
+
+            .link-icon {
+                width: 56px;
+                height: 56px;
+                font-size: 1.7rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .greeting {
+                margin-bottom: 2rem;
+            }
+
+            .search-container {
+                margin-bottom: 2rem;
+            }
+
+            .quick-links {
+                grid-template-columns: repeat(auto-fit, minmax(70px, 90px));
+            }
+        }
+    </style>
 </head>
+<body class="dark">
+    <!-- Фон -->
+    <div class="background" id="background"></div>
+    <div class="background-overlay"></div>
 
-<body>
-<div class="overlay"></div>
+    <!-- Кнопки управления -->
+    <div class="controls">
+        <button class="control-btn" id="themeBtn" title="Сменить тему">🌓</button>
+        <button class="control-btn" id="refreshBtn" title="Обновить фон">🔄</button>
+    </div>
 
-<div class="container">
-  <div class="top">
-    <button id="themeBtn">🌙</button>
-    <button id="bgBtn">🖼️</button>
-  </div>
+    <!-- Главный контент -->
+    <div class="container">
+        <div class="clock" id="clock">00:00</div>
+        <div class="date" id="date"></div>
+        <div class="greeting" id="greeting">Привет!</div>
+        
+        <div class="search-container">
+            <input type="text" class="search-box" id="searchBox" placeholder="Поиск в Google...">
+        </div>
 
-  <div class="time" id="time"></div>
-  <div class="date" id="date"></div>
-  <div class="greeting" id="greeting"></div>
+        <div class="quick-links" id="quickLinks"></div>
+    </div>
 
-  <form class="search" action="https://google.com/search">
-    <input name="q" placeholder="Поиск в Google..." autofocus />
-  </form>
+    <!-- Модальное окно для редактирования -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <h2 id="modalTitle">Редактировать ссылку</h2>
+            <input type="text" id="modalName" placeholder="Название">
+            <input type="text" id="modalUrl" placeholder="URL (например, https://google.com)">
+            <input type="text" id="modalIcon" placeholder="Эмодзи иконка">
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" id="modalCancel">Отмена</button>
+                <button class="modal-btn primary" id="modalSave">Сохранить</button>
+            </div>
+        </div>
+    </div>
 
-  <div class="links" id="links"></div>
-</div>
+    <script>
+        // ========== ИНИЦИАЛИЗАЦИЯ ==========
+        
+        // Дефолтные быстрые ссылки
+        const defaultLinks = [
+            { name: 'YouTube', url: 'https://youtube.com', icon: '▶️' },
+            { name: 'Gmail', url: 'https://gmail.com', icon: '📧' },
+            { name: 'GitHub', url: 'https://github.com', icon: '🐙' },
+            { name: 'Drive', url: 'https://drive.google.com', icon: '📁' },
+            { name: 'Calendar', url: 'https://calendar.google.com', icon: '📅' },
+            { name: 'Maps', url: 'https://maps.google.com', icon: '🗺️' }
+        ];
 
-<script>
-/* ========== TIME ========== */
-const timeEl=document.getElementById("time");
-const dateEl=document.getElementById("date");
+        // Загрузка настроек
+        let theme = localStorage.getItem('theme') || 'dark';
+        let userName = localStorage.getItem('userName') || '';
+        let quickLinks = JSON.parse(localStorage.getItem('quickLinks')) || defaultLinks;
+        let backgroundUrl = localStorage.getItem('backgroundUrl') || '';
+        let editingIndex = -1;
 
-function tick(){
-  const d=new Date();
-  timeEl.textContent=
-    String(d.getHours()).padStart(2,"0")+":"+
-    String(d.getMinutes()).padStart(2,"0");
-  dateEl.textContent=d.toLocaleDateString("ru-RU",
-    {weekday:"long",day:"numeric",month:"long"});
-}
-tick();setInterval(tick,1000);
+        // ========== ЧАСЫ И ДАТА ==========
+        
+        function updateClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('clock').textContent = `${hours}:${minutes}`;
+        }
 
-/* ========== GREETING ========== */
-let name=localStorage.getItem("name");
-if(!name){
-  name=prompt("Как вас называть?");
-  localStorage.setItem("name",name);
-}
-document.getElementById("greeting").textContent=`Добро пожаловать, ${name} 👋`;
+        function updateDate() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const dateStr = now.toLocaleDateString('ru-RU', options);
+            document.getElementById('date').textContent = dateStr;
+        }
 
-/* ========== THEME ========== */
-const themeBtn=document.getElementById("themeBtn");
-if(localStorage.getItem("theme")==="light")
-  document.body.classList.add("light");
+        // ========== ПРИВЕТСТВИЕ ==========
+        
+        function updateGreeting() {
+            const hour = new Date().getHours();
+            let greetingText = 'Привет';
+            
+            if (hour >= 5 && hour < 12) greetingText = 'Доброе утро';
+            else if (hour >= 12 && hour < 18) greetingText = 'Добрый день';
+            else if (hour >= 18 && hour < 23) greetingText = 'Добрый вечер';
+            else greetingText = 'Доброй ночи';
 
-themeBtn.onclick=()=>{
-  document.body.classList.toggle("light");
-  localStorage.setItem("theme",
-    document.body.classList.contains("light")?"light":"dark");
-};
+            if (userName) greetingText += `, ${userName}`;
+            document.getElementById('greeting').textContent = greetingText + '!';
+        }
 
-/* ========== BACKGROUND (NO API) ========== */
-function loadBg(){
-  const url=`https://source.unsplash.com/1920x1080/?nature,landscape,dark&sig=${Date.now()}`;
-  document.body.style.backgroundImage=`url(${url})`;
-}
-document.getElementById("bgBtn").onclick=loadBg;
-loadBg();
+        // ========== ФОНОВОЕ ИЗОБРАЖЕНИЕ ==========
+        
+        function setBackground(url = '') {
+            const bg = document.getElementById('background');
+            if (!url) {
+                // Генерируем случайный фон из Unsplash
+                url = `https://source.unsplash.com/1920x1080/?nature,landscape,mountain,ocean&sig=${Date.now()}`;
+            }
+            bg.style.backgroundImage = `url('${url}')`;
+            localStorage.setItem('backgroundUrl', url);
+        }
 
-/* ========== LINKS ========== */
-const defaults=[
-  {name:"Google",url:"https://google.com"},
-  {name:"YouTube",url:"https://youtube.com"},
-  {name:"GitHub",url:"https://github.com"},
-  {name:"ChatGPT",url:"https://chat.openai.com"}
-];
+        // ========== ТЕМА ==========
+        
+        function setTheme(newTheme) {
+            document.body.className = newTheme;
+            theme = newTheme;
+            localStorage.setItem('theme', newTheme);
+        }
 
-let links=JSON.parse(localStorage.getItem("links"))||defaults;
-const linksEl=document.getElementById("links");
+        function toggleTheme() {
+            setTheme(theme === 'dark' ? 'light' : 'dark');
+        }
 
-function renderLinks(){
-  linksEl.innerHTML="";
-  links.forEach((l,i)=>{
-    const a=document.createElement("a");
-    a.className="link";
-    a.textContent=l.name;
-    a.href=l.url;
-    a.onclick=e=>{
-      if(e.ctrlKey){
-        const name=prompt("Название",l.name);
-        const url=prompt("URL",l.url);
-        links[i]={name,url};
-        localStorage.setItem("links",JSON.stringify(links));
-        renderLinks();
-        e.preventDefault();
-      }
-    };
-    linksEl.appendChild(a);
-  });
-}
-renderLinks();
-</script>
+        // ========== БЫСТРЫЕ ССЫЛКИ ==========
+        
+        function renderQuickLinks() {
+            const container = document.getElementById('quickLinks');
+            container.innerHTML = '';
+            
+            quickLinks.forEach((link, index) => {
+                const linkEl = document.createElement('a');
+                linkEl.className = 'link-item';
+                linkEl.href = link.url;
+                linkEl.innerHTML = `
+                    <div class="link-icon">${link.icon}</div>
+                    <div class="link-name">${link.name}</div>
+                `;
+                
+                // Ctrl + Click для редактирования
+                linkEl.addEventListener('click', (e) => {
+                    if (e.ctrlKey || e.metaKey) {
+                        e.preventDefault();
+                        openEditModal(index);
+                    }
+                });
+                
+                container.appendChild(linkEl);
+            });
+        }
+
+        function saveQuickLinks() {
+            localStorage.setItem('quickLinks', JSON.stringify(quickLinks));
+            renderQuickLinks();
+        }
+
+        // ========== МОДАЛЬНОЕ ОКНО ==========
+        
+        function openEditModal(index) {
+            editingIndex = index;
+            const link = quickLinks[index];
+            
+            document.getElementById('modalTitle').textContent = 'Редактировать ссылку';
+            document.getElementById('modalName').value = link.name;
+            document.getElementById('modalUrl').value = link.url;
+            document.getElementById('modalIcon').value = link.icon;
+            document.getElementById('modal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+            editingIndex = -1;
+        }
+
+        function saveModal() {
+            const name = document.getElementById('modalName').value.trim();
+            const url = document.getElementById('modalUrl').value.trim();
+            const icon = document.getElementById('modalIcon').value.trim();
+            
+            if (!name || !url || !icon) {
+                alert('Заполните все поля!');
+                return;
+            }
+
+            if (editingIndex >= 0) {
+                quickLinks[editingIndex] = { name, url, icon };
+            }
+            
+            saveQuickLinks();
+            closeModal();
+        }
+
+        // ========== ПОИСК ==========
+        
+        document.getElementById('searchBox').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const query = e.target.value.trim();
+                if (query) {
+                    window.location.href = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+                }
+            }
+        });
+
+        // ========== ПРИВЕТСТВИЕ (КЛИК) ==========
+        
+        document.getElementById('greeting').addEventListener('click', () => {
+            const newName = prompt('Введите ваше имя:', userName);
+            if (newName !== null) {
+                userName = newName.trim();
+                localStorage.setItem('userName', userName);
+                updateGreeting();
+            }
+        });
+
+        // ========== КНОПКИ УПРАВЛЕНИЯ ==========
+        
+        document.getElementById('themeBtn').addEventListener('click', toggleTheme);
+        document.getElementById('refreshBtn').addEventListener('click', () => setBackground());
+
+        // ========== МОДАЛЬНОЕ ОКНО (КНОПКИ) ==========
+        
+        document.getElementById('modalCancel').addEventListener('click', closeModal);
+        document.getElementById('modalSave').addEventListener('click', saveModal);
+        
+        // Закрытие модального окна по клику вне его
+        document.getElementById('modal').addEventListener('click', (e) => {
+            if (e.target.id === 'modal') closeModal();
+        });
+
+        // Закрытие модального окна по ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && document.getElementById('modal').classList.contains('active')) {
+                closeModal();
+            }
+        });
+
+        // ========== ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ ==========
+        
+        function init() {
+            setTheme(theme);
+            setBackground(backgroundUrl);
+            updateClock();
+            updateDate();
+            updateGreeting();
+            renderQuickLinks();
+            
+            // Обновление часов каждую секунду
+            setInterval(updateClock, 1000);
+            
+            // Обновление даты и приветствия каждую минуту
+            setInterval(() => {
+                updateDate();
+                updateGreeting();
+            }, 60000);
+        }
+
+        // Запуск при загрузке страницы
+        init();
+    </script>
 </body>
 </html>
