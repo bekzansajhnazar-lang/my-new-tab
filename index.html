@@ -12,18 +12,22 @@
         }
 
         :root {
-            --bg-overlay-dark: linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(30, 41, 59, 0.75));
-            --bg-overlay-light: linear-gradient(135deg, rgba(241, 245, 249, 0.85), rgba(226, 232, 240, 0.75));
-            --glass-bg-dark: rgba(15, 23, 42, 0.6);
-            --glass-bg-light: rgba(255, 255, 255, 0.6);
-            --text-primary-dark: #f1f5f9;
-            --text-primary-light: #0f172a;
-            --text-secondary-dark: #cbd5e1;
-            --text-secondary-light: #475569;
-            --accent: #3b82f6;
-            --accent-hover: #2563eb;
-            --shadow-dark: 0 8px 32px rgba(0, 0, 0, 0.3);
-            --shadow-light: 0 8px 32px rgba(0, 0, 0, 0.1);
+            /* Темно-синяя морская палитра */
+            --bg-overlay-dark: linear-gradient(135deg, rgba(10, 25, 47, 0.7), rgba(13, 71, 161, 0.6), rgba(21, 101, 192, 0.5));
+            --bg-overlay-light: linear-gradient(135deg, rgba(227, 242, 253, 0.8), rgba(187, 222, 251, 0.7), rgba(144, 202, 249, 0.6));
+            --glass-bg-dark: rgba(13, 71, 161, 0.4);
+            --glass-bg-light: rgba(255, 255, 255, 0.75);
+            --text-primary-dark: #E3F2FD;
+            --text-primary-light: #0D47A1;
+            --text-secondary-dark: #90CAF9;
+            --text-secondary-light: #1565C0;
+            --accent: #2196F3;
+            --accent-hover: #1976D2;
+            --accent-secondary: #64B5F6;
+            --shadow-dark: 0 8px 32px rgba(33, 150, 243, 0.4);
+            --shadow-light: 0 8px 32px rgba(13, 71, 161, 0.3);
+            --ocean-blue: #0D47A1;
+            --sky-blue: #2196F3;
         }
 
         body {
@@ -34,18 +38,14 @@
             transition: color 0.3s ease;
         }
 
-        /* Фоновое изображение */
-        .background {
+        /* Canvas для анимированного фона */
+        #oceanCanvas {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
             z-index: -2;
-            transition: opacity 0.5s ease;
         }
 
         .background-overlay {
@@ -56,6 +56,7 @@
             height: 100%;
             z-index: -1;
             transition: background 0.3s ease;
+            pointer-events: none;
         }
 
         body.dark .background-overlay {
@@ -80,9 +81,13 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            min-height: 100vh;
             padding: 2rem;
+            padding-top: 4rem;
+            padding-bottom: 4rem;
             animation: fadeIn 0.6s ease-out;
+            position: relative;
+            z-index: 1;
         }
 
         @keyframes fadeIn {
@@ -99,11 +104,30 @@
         /* Часы */
         .clock {
             font-size: clamp(4rem, 12vw, 8rem);
-            font-weight: 300;
-            letter-spacing: -0.02em;
+            font-weight: 700;
+            letter-spacing: 0.05em;
             margin-bottom: 1rem;
-            text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            animation: slideDown 0.8s ease-out;
+            text-shadow: 
+                0 0 20px rgba(33, 150, 243, 0.8),
+                0 0 40px rgba(25, 118, 210, 0.6),
+                4px 4px 8px rgba(0, 0, 0, 0.5);
+            animation: slideDown 0.8s ease-out, glow 3s ease-in-out infinite alternate;
+            background: linear-gradient(135deg, var(--sky-blue), var(--accent-secondary), var(--sky-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            background-size: 200% 200%;
+            position: relative;
+            z-index: 10;
+        }
+
+        @keyframes glow {
+            from {
+                filter: drop-shadow(0 0 10px rgba(33, 150, 243, 0.5));
+            }
+            to {
+                filter: drop-shadow(0 0 30px rgba(100, 181, 246, 0.8));
+            }
         }
 
         @keyframes slideDown {
@@ -136,15 +160,40 @@
         /* Приветствие */
         .greeting {
             font-size: clamp(1.5rem, 4vw, 2.5rem);
-            font-weight: 500;
+            font-weight: 700;
             margin-bottom: 3rem;
             animation: slideDown 0.8s ease-out 0.2s backwards;
             cursor: pointer;
-            transition: transform 0.2s ease;
+            transition: all 0.3s ease;
+            text-shadow: 
+                2px 2px 4px rgba(0, 0, 0, 0.5),
+                0 0 15px rgba(33, 150, 243, 0.5);
+            position: relative;
+        }
+
+        .greeting::before {
+            content: '⚓';
+            margin-right: 0.5rem;
+            display: inline-block;
+            animation: swing 2s ease-in-out infinite;
+        }
+
+        .greeting::after {
+            content: '☠️';
+            margin-left: 0.5rem;
+        }
+
+        @keyframes swing {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(10deg); }
+            75% { transform: rotate(-10deg); }
         }
 
         .greeting:hover {
-            transform: scale(1.02);
+            transform: scale(1.05) rotate(-2deg);
+            text-shadow: 
+                3px 3px 6px rgba(0, 0, 0, 0.6),
+                0 0 25px rgba(33, 150, 243, 0.8);
         }
 
         /* Поиск */
@@ -196,7 +245,9 @@
 
         .search-box:focus {
             transform: translateY(-2px);
-            box-shadow: 0 12px 40px rgba(59, 130, 246, 0.3);
+            box-shadow: 
+                0 12px 40px rgba(33, 150, 243, 0.4),
+                0 0 0 3px rgba(100, 181, 246, 0.3);
         }
 
         /* Быстрые ссылки */
@@ -232,20 +283,26 @@
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             transition: all 0.3s ease;
+            border: 2px solid transparent;
         }
 
         body.dark .link-icon {
             background: var(--glass-bg-dark);
             box-shadow: var(--shadow-dark);
+            border-color: rgba(33, 150, 243, 0.3);
         }
 
         body.light .link-icon {
             background: var(--glass-bg-light);
             box-shadow: var(--shadow-light);
+            border-color: rgba(13, 71, 161, 0.3);
         }
 
         .link-item:hover .link-icon {
-            box-shadow: 0 12px 40px rgba(59, 130, 246, 0.4);
+            box-shadow: 
+                0 12px 40px rgba(33, 150, 243, 0.6),
+                0 0 20px rgba(100, 181, 246, 0.5);
+            transform: rotate(5deg) scale(1.05);
         }
 
         .link-name {
@@ -303,9 +360,10 @@
         }
 
         .control-btn:hover {
-            transform: translateY(-2px) scale(1.05);
+            transform: translateY(-2px) scale(1.05) rotate(5deg);
             background: var(--accent);
             color: white;
+            box-shadow: 0 12px 40px rgba(33, 150, 243, 0.6);
         }
 
         /* Модальное окно */
@@ -370,15 +428,19 @@
         body.dark .modal-content input {
             background: rgba(255, 255, 255, 0.1);
             color: var(--text-primary-dark);
+            border: 1px solid rgba(33, 150, 243, 0.3);
         }
 
         body.light .modal-content input {
             background: rgba(0, 0, 0, 0.05);
             color: var(--text-primary-light);
+            border: 1px solid rgba(13, 71, 161, 0.3);
         }
 
         .modal-content input:focus {
-            box-shadow: 0 0 0 2px var(--accent);
+            box-shadow: 
+                0 0 0 2px var(--accent),
+                0 0 20px rgba(33, 150, 243, 0.3);
         }
 
         .modal-buttons {
@@ -404,7 +466,8 @@
 
         .modal-btn.primary:hover {
             background: var(--accent-hover);
-            transform: translateY(-2px);
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 8px 20px rgba(33, 150, 243, 0.5);
         }
 
         .modal-btn.secondary {
@@ -463,14 +526,13 @@
     </style>
 </head>
 <body class="dark">
-    <!-- Фон -->
-    <div class="background" id="background"></div>
+    <!-- Canvas для анимированного океана -->
+    <canvas id="oceanCanvas"></canvas>
     <div class="background-overlay"></div>
 
     <!-- Кнопки управления -->
     <div class="controls">
         <button class="control-btn" id="themeBtn" title="Сменить тему">🌓</button>
-        <button class="control-btn" id="refreshBtn" title="Обновить фон">🔄</button>
     </div>
 
     <!-- Главный контент -->
@@ -501,9 +563,259 @@
     </div>
 
     <script>
+        // ========== АНИМИРОВАННЫЙ ОКЕАН И КОРАБЛЬ ==========
+        
+        const canvas = document.getElementById('oceanCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let width, height;
+        let waves = [];
+        let ship = {
+            x: 0,
+            y: 0,
+            scale: 1,
+            rotation: 0
+        };
+        let clouds = [];
+        let birds = [];
+        let time = 0;
+
+        function resizeCanvas() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            initWaves();
+            initClouds();
+            initBirds();
+        }
+
+        function initWaves() {
+            waves = [];
+            for (let i = 0; i < 5; i++) {
+                waves.push({
+                    y: height * 0.6 + i * 40,
+                    amplitude: 20 + i * 5,
+                    frequency: 0.01 + i * 0.002,
+                    speed: 0.02 + i * 0.005,
+                    offset: Math.random() * Math.PI * 2
+                });
+            }
+        }
+
+        function initClouds() {
+            clouds = [];
+            for (let i = 0; i < 5; i++) {
+                clouds.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height * 0.3,
+                    size: 40 + Math.random() * 60,
+                    speed: 0.1 + Math.random() * 0.3
+                });
+            }
+        }
+
+        function initBirds() {
+            birds = [];
+            for (let i = 0; i < 3; i++) {
+                birds.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height * 0.4,
+                    speed: 1 + Math.random() * 2,
+                    wingPhase: Math.random() * Math.PI * 2
+                });
+            }
+        }
+
+        function drawSky(isDark) {
+            const gradient = ctx.createLinearGradient(0, 0, 0, height);
+            if (isDark) {
+                gradient.addColorStop(0, '#0a1929');
+                gradient.addColorStop(0.5, '#0d47a1');
+                gradient.addColorStop(1, '#1565c0');
+            } else {
+                gradient.addColorStop(0, '#42a5f5');
+                gradient.addColorStop(0.5, '#64b5f6');
+                gradient.addColorStop(1, '#90caf9');
+            }
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, width, height);
+        }
+
+        function drawSun(isDark) {
+            const sunY = height * 0.25;
+            const sunX = width * 0.8;
+            const sunRadius = 60;
+            
+            const gradient = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, sunRadius * 2);
+            if (isDark) {
+                gradient.addColorStop(0, 'rgba(144, 202, 249, 0.3)');
+                gradient.addColorStop(1, 'rgba(66, 165, 245, 0)');
+            } else {
+                gradient.addColorStop(0, 'rgba(255, 235, 59, 0.4)');
+                gradient.addColorStop(1, 'rgba(255, 193, 7, 0)');
+            }
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, width, height);
+            
+            ctx.beginPath();
+            ctx.arc(sunX, sunY, sunRadius, 0, Math.PI * 2);
+            ctx.fillStyle = isDark ? '#64b5f6' : '#ffd54f';
+            ctx.fill();
+        }
+
+        function drawClouds(isDark) {
+            clouds.forEach(cloud => {
+                ctx.save();
+                ctx.globalAlpha = isDark ? 0.2 : 0.6;
+                ctx.fillStyle = isDark ? '#1e88e5' : '#ffffff';
+                
+                ctx.beginPath();
+                ctx.arc(cloud.x, cloud.y, cloud.size, 0, Math.PI * 2);
+                ctx.arc(cloud.x + cloud.size * 0.6, cloud.y - cloud.size * 0.3, cloud.size * 0.8, 0, Math.PI * 2);
+                ctx.arc(cloud.x + cloud.size * 1.2, cloud.y, cloud.size * 0.9, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+                
+                cloud.x += cloud.speed;
+                if (cloud.x > width + cloud.size * 2) {
+                    cloud.x = -cloud.size * 2;
+                }
+            });
+        }
+
+        function drawBirds(isDark) {
+            birds.forEach(bird => {
+                ctx.save();
+                ctx.globalAlpha = isDark ? 0.3 : 0.7;
+                ctx.strokeStyle = isDark ? '#42a5f5' : '#333333';
+                ctx.lineWidth = 2;
+                
+                const wingSpan = 15 + Math.sin(bird.wingPhase) * 5;
+                
+                ctx.beginPath();
+                ctx.moveTo(bird.x, bird.y);
+                ctx.quadraticCurveTo(bird.x - wingSpan, bird.y - 10, bird.x - wingSpan * 1.5, bird.y);
+                ctx.moveTo(bird.x, bird.y);
+                ctx.quadraticCurveTo(bird.x + wingSpan, bird.y - 10, bird.x + wingSpan * 1.5, bird.y);
+                ctx.stroke();
+                ctx.restore();
+                
+                bird.x += bird.speed;
+                bird.wingPhase += 0.1;
+                if (bird.x > width + 50) {
+                    bird.x = -50;
+                    bird.y = Math.random() * height * 0.4;
+                }
+            });
+        }
+
+        function drawWaves(isDark) {
+            waves.forEach((wave, index) => {
+                ctx.beginPath();
+                ctx.moveTo(0, height);
+                
+                for (let x = 0; x <= width; x += 5) {
+                    const y = wave.y + Math.sin(x * wave.frequency + wave.offset + time * wave.speed) * wave.amplitude;
+                    ctx.lineTo(x, y);
+                }
+                
+                ctx.lineTo(width, height);
+                ctx.closePath();
+                
+                const alpha = 0.2 + index * 0.1;
+                if (isDark) {
+                    ctx.fillStyle = `rgba(13, 71, 161, ${alpha})`;
+                } else {
+                    ctx.fillStyle = `rgba(33, 150, 243, ${alpha})`;
+                }
+                ctx.fill();
+            });
+        }
+
+        function drawShip(isDark) {
+            const baseY = height * 0.6 + Math.sin(time * 0.02) * 15;
+            ship.y = baseY;
+            ship.x = width * 0.3 + Math.sin(time * 0.01) * 50;
+            ship.rotation = Math.sin(time * 0.02) * 0.05;
+            
+            ctx.save();
+            ctx.translate(ship.x, ship.y);
+            ctx.rotate(ship.rotation);
+            ctx.scale(ship.scale, ship.scale);
+            
+            // Корпус корабля
+            ctx.fillStyle = isDark ? '#8B4513' : '#A0522D';
+            ctx.beginPath();
+            ctx.moveTo(-50, 0);
+            ctx.lineTo(-40, 30);
+            ctx.lineTo(40, 30);
+            ctx.lineTo(50, 0);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Палуба
+            ctx.fillStyle = isDark ? '#654321' : '#8B6914';
+            ctx.fillRect(-45, -5, 90, 8);
+            
+            // Мачта
+            ctx.strokeStyle = isDark ? '#8B4513' : '#654321';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(0, -5);
+            ctx.lineTo(0, -70);
+            ctx.stroke();
+            
+            // Парус (Going Merry стиль)
+            ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.8)' : 'rgba(255, 255, 255, 0.95)';
+            ctx.beginPath();
+            ctx.moveTo(0, -65);
+            ctx.quadraticCurveTo(-35 + Math.sin(time * 0.05) * 5, -50, -30, -30);
+            ctx.lineTo(0, -30);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Флаг (череп)
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(-2, -75, 4, 8);
+            ctx.font = '16px Arial';
+            ctx.fillText('☠️', -10, -75);
+            
+            // Голова барашка (символ Going Merry)
+            ctx.fillStyle = isDark ? '#FFE4B5' : '#FAEBD7';
+            ctx.beginPath();
+            ctx.arc(-50, 10, 12, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Рога
+            ctx.strokeStyle = isDark ? '#D2691E' : '#8B4513';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(-58, 5, 6, 0, Math.PI);
+            ctx.arc(-42, 5, 6, 0, Math.PI);
+            ctx.stroke();
+            
+            ctx.restore();
+        }
+
+        function animate() {
+            const isDark = document.body.classList.contains('dark');
+            
+            drawSky(isDark);
+            drawSun(isDark);
+            drawClouds(isDark);
+            drawBirds(isDark);
+            drawWaves(isDark);
+            drawShip(isDark);
+            
+            time++;
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        animate();
+
         // ========== ИНИЦИАЛИЗАЦИЯ ==========
         
-        // Дефолтные быстрые ссылки
         const defaultLinks = [
             { name: 'YouTube', url: 'https://youtube.com', icon: '▶️' },
             { name: 'Gmail', url: 'https://gmail.com', icon: '📧' },
@@ -513,11 +825,9 @@
             { name: 'Maps', url: 'https://maps.google.com', icon: '🗺️' }
         ];
 
-        // Загрузка настроек
         let theme = localStorage.getItem('theme') || 'dark';
         let userName = localStorage.getItem('userName') || '';
         let quickLinks = JSON.parse(localStorage.getItem('quickLinks')) || defaultLinks;
-        let backgroundUrl = localStorage.getItem('backgroundUrl') || '';
         let editingIndex = -1;
 
         // ========== ЧАСЫ И ДАТА ==========
@@ -551,18 +861,6 @@
             document.getElementById('greeting').textContent = greetingText + '!';
         }
 
-        // ========== ФОНОВОЕ ИЗОБРАЖЕНИЕ ==========
-        
-        function setBackground(url = '') {
-            const bg = document.getElementById('background');
-            if (!url) {
-                // Генерируем случайный фон из Unsplash
-                url = `https://source.unsplash.com/1920x1080/?nature,landscape,mountain,ocean&sig=${Date.now()}`;
-            }
-            bg.style.backgroundImage = `url('${url}')`;
-            localStorage.setItem('backgroundUrl', url);
-        }
-
         // ========== ТЕМА ==========
         
         function setTheme(newTheme) {
@@ -590,7 +888,6 @@
                     <div class="link-name">${link.name}</div>
                 `;
                 
-                // Ctrl + Click для редактирования
                 linkEl.addEventListener('click', (e) => {
                     if (e.ctrlKey || e.metaKey) {
                         e.preventDefault();
@@ -668,19 +965,16 @@
         // ========== КНОПКИ УПРАВЛЕНИЯ ==========
         
         document.getElementById('themeBtn').addEventListener('click', toggleTheme);
-        document.getElementById('refreshBtn').addEventListener('click', () => setBackground());
 
         // ========== МОДАЛЬНОЕ ОКНО (КНОПКИ) ==========
         
         document.getElementById('modalCancel').addEventListener('click', closeModal);
         document.getElementById('modalSave').addEventListener('click', saveModal);
         
-        // Закрытие модального окна по клику вне его
         document.getElementById('modal').addEventListener('click', (e) => {
             if (e.target.id === 'modal') closeModal();
         });
 
-        // Закрытие модального окна по ESC
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && document.getElementById('modal').classList.contains('active')) {
                 closeModal();
@@ -691,24 +985,17 @@
         
         function init() {
             setTheme(theme);
-            setBackground(backgroundUrl);
             updateClock();
             updateDate();
             updateGreeting();
             renderQuickLinks();
             
-            // Обновление часов каждую секунду
             setInterval(updateClock, 1000);
             
-            // Обновление даты и приветствия каждую минуту
             setInterval(() => {
                 updateDate();
                 updateGreeting();
             }, 60000);
         }
 
-        // Запуск при загрузке страницы
         init();
-    </script>
-</body>
-</html>
