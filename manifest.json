@@ -1,9 +1,7 @@
+manifest.json:
 {
   "manifest_version": 3,
-  "name": "Modern New Tab PRO",
-  "description": "Современная новая вкладка без API-ключей",
-  "version": "2.0",
-  "chrome_url_overrides": {
-    "newtab": "index.html"
-  }
+  "chrome_url_overrides": { "newtab": "index.html" },
+  "name": "New Tab",
+  "version": "1.0"
 }
