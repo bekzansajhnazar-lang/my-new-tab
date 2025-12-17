@@ -3,208 +3,290 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Новая вкладка</title>
+    <title>New Tab</title>
     <style>
+        /* ===== ГЛОБАЛЬНЫЕ СТИЛИ ===== */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        :root {
-            /* Темно-синяя морская палитра */
-            --bg-overlay-dark: linear-gradient(135deg, rgba(10, 25, 47, 0.7), rgba(13, 71, 161, 0.6), rgba(21, 101, 192, 0.5));
-            --bg-overlay-light: linear-gradient(135deg, rgba(227, 242, 253, 0.8), rgba(187, 222, 251, 0.7), rgba(144, 202, 249, 0.6));
-            --glass-bg-dark: rgba(13, 71, 161, 0.4);
-            --glass-bg-light: rgba(255, 255, 255, 0.75);
-            --text-primary-dark: #E3F2FD;
-            --text-primary-light: #0D47A1;
-            --text-secondary-dark: #90CAF9;
-            --text-secondary-light: #1565C0;
-            --accent: #2196F3;
-            --accent-hover: #1976D2;
-            --accent-secondary: #64B5F6;
-            --shadow-dark: 0 8px 32px rgba(33, 150, 243, 0.4);
-            --shadow-light: 0 8px 32px rgba(13, 71, 161, 0.3);
-            --ocean-blue: #0D47A1;
-            --sky-blue: #2196F3;
-        }
-
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             height: 100vh;
             overflow: hidden;
-            position: relative;
-            transition: color 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Canvas для анимированного фона */
-        #oceanCanvas {
+        /* ===== ТЕМЫ ===== */
+        body.light {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+        }
+
+        body.dark {
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
+            color: #e0e0e0;
+        }
+
+        /* ===== ФОНОВОЕ ИЗОБРАЖЕНИЕ ===== */
+        #bg-image {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
+            object-fit: cover;
             z-index: -2;
+            transition: opacity 0.8s ease;
         }
 
-        .background-overlay {
+        /* ===== ГРАДИЕНТНЫЙ OVERLAY ===== */
+        #overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             z-index: -1;
-            transition: background 0.3s ease;
             pointer-events: none;
+            background: radial-gradient(circle at 20% 80%, rgba(120,119,198,0.3) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(255,119,198,0.3) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 40%, rgba(120,219,255,0.3) 0%, transparent 50%);
+            transition: opacity 0.4s ease;
         }
 
-        body.dark .background-overlay {
-            background: var(--bg-overlay-dark);
-        }
-
-        body.light .background-overlay {
-            background: var(--bg-overlay-light);
-        }
-
-        body.dark {
-            color: var(--text-primary-dark);
-        }
-
-        body.light {
-            color: var(--text-primary-light);
-        }
-
-        /* Главный контейнер */
+        /* ===== ГЛАВНЫЙ КОНТЕЙНЕР ===== */
         .container {
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
             padding: 2rem;
-            padding-top: 4rem;
-            padding-bottom: 4rem;
-            animation: fadeIn 0.6s ease-out;
             position: relative;
-            z-index: 1;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Часы */
-        .clock {
-            font-size: clamp(4rem, 12vw, 8rem);
-            font-weight: 700;
-            letter-spacing: 0.05em;
+        /* ===== ЧАСЫ ===== */
+        .clock-container {
+            text-align: center;
             margin-bottom: 1rem;
-            text-shadow: 
-                0 0 20px rgba(33, 150, 243, 0.8),
-                0 0 40px rgba(25, 118, 210, 0.6),
-                4px 4px 8px rgba(0, 0, 0, 0.5);
-            animation: slideDown 0.8s ease-out, glow 3s ease-in-out infinite alternate;
-            background: linear-gradient(135deg, var(--sky-blue), var(--accent-secondary), var(--sky-blue));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            background-size: 200% 200%;
-            position: relative;
-            z-index: 10;
+            animation: fadeInUp 1s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        @keyframes glow {
-            from {
-                filter: drop-shadow(0 0 10px rgba(33, 150, 243, 0.5));
-            }
-            to {
-                filter: drop-shadow(0 0 30px rgba(100, 181, 246, 0.8));
-            }
+        #clock {
+            font-size: clamp(4rem, 12vw, 10rem);
+            font-weight: 300;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 1rem 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
 
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        body.dark #clock {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
         }
 
-        /* Дата */
-        .date {
-            font-size: clamp(1rem, 2.5vw, 1.5rem);
+        body.light #clock {
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+        }
+
+        #date {
+            font-size: clamp(1.1rem, 3vw, 1.5rem);
+            opacity: 0.8;
             font-weight: 400;
-            margin-bottom: 2rem;
-            animation: slideDown 0.8s ease-out 0.1s backwards;
         }
 
-        body.dark .date {
-            color: var(--text-secondary-dark);
+        /* ===== ПРИВЕТСТВИЕ ===== */
+        #greeting {
+            font-size: clamp(1.2rem, 4vw, 2rem);
+            margin: 1.5rem 0;
+            font-weight: 300;
+            animation: fadeInUp 1s cubic-bezier(0.4, 0, 0.2, 1) 0.2s both;
         }
 
-        body.light .date {
-            color: var(--text-secondary-light);
-        }
-
-        /* Приветствие */
-        .greeting {
-            font-size: clamp(1.5rem, 4vw, 2.5rem);
-            font-weight: 700;
-            margin-bottom: 3rem;
-            animation: slideDown 0.8s ease-out 0.2s backwards;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-shadow: 
-                2px 2px 4px rgba(0, 0, 0, 0.5),
-                0 0 15px rgba(33, 150, 243, 0.5);
-            position: relative;
-        }
-
-        .greeting::before {
-            content: '⚓';
-            margin-right: 0.5rem;
-            display: inline-block;
-            animation: swing 2s ease-in-out infinite;
-        }
-
-        .greeting::after {
-            content: '☠️';
-            margin-left: 0.5rem;
-        }
-
-        @keyframes swing {
-            0%, 100% { transform: rotate(0deg); }
-            25% { transform: rotate(10deg); }
-            75% { transform: rotate(-10deg); }
-        }
-
-        .greeting:hover {
-            transform: scale(1.05) rotate(-2deg);
-            text-shadow: 
-                3px 3px 6px rgba(0, 0, 0, 0.6),
-                0 0 25px rgba(33, 150, 243, 0.8);
-        }
-
-        /* Поиск */
+        /* ===== ПОЛЕ ПОИСКА ===== */
         .search-container {
+            position: relative;
             width: 100%;
-            max-width: 600px;
-            margin-bottom: 3rem;
-            animation: slideUp 0.8s ease-out 0.3s backwards;
+            max-width: 500px;
+            margin: 2rem 0;
+            animation: fadeInUp 1s cubic-bezier(0.4, 0, 0.2, 1) 0.4s both;
         }
 
-        @keyframes slideUp {
+        #search {
+            width: 100%;
+            padding: 1.2rem 1.5rem;
+            font-size: clamp(1rem, 3vw, 1.2rem);
+            border: none;
+            border-radius: 25px;
+            outline: none;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            color: inherit;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        body.dark #search {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        body.light #search {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        #search:focus {
+            transform: scale(1.02);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        #search::placeholder {
+            color: inherit;
+            opacity: 0.6;
+        }
+
+        /* ===== ПАНЕЛЬ УПРАВЛЕНИЯ ===== */
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin: 2rem 0;
+            animation: fadeInUp 1s cubic-bezier(0.4, 0, 0.2, 1) 0.6s both;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary {
+            background: rgba(59, 130, 246, 0.8);
+            color: white;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.15);
+            color: inherit;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        body.light .btn-secondary {
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        /* ===== БЫСТРЫЕ ССЫЛКИ ===== */
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            max-width: 800px;
+            width: 100%;
+            margin-top: 2rem;
+            animation: fadeInUp 1s cubic-bezier(0.4, 0, 0.2, 1) 0.8s both;
+        }
+
+        .link-item {
+            aspect-ratio: 1;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: inherit;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+        }
+
+        body.light .link-item {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            color: #333;
+        }
+
+        .link-item:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .link-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .link-title {
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-align: center;
+            pointer-events: none;
+        }
+
+        /* Режим редактирования */
+        .link-item.editing {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+        }
+
+        /* ===== АДАПТИВНОСТЬ ===== */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 250px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .links-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.8rem;
+            }
+        }
+
+        /* ===== АНИМАЦИИ ===== */
+        @keyframes fadeInUp {
             from {
                 opacity: 0;
                 transform: translateY(30px);
@@ -215,787 +297,243 @@
             }
         }
 
-        .search-box {
-            width: 100%;
-            padding: 1rem 1.5rem;
-            font-size: 1.1rem;
-            border: none;
-            border-radius: 50px;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-            outline: none;
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
         }
 
-        body.dark .search-box {
-            background: var(--glass-bg-dark);
-            color: var(--text-primary-dark);
-            box-shadow: var(--shadow-dark);
-        }
-
-        body.light .search-box {
-            background: var(--glass-bg-light);
-            color: var(--text-primary-light);
-            box-shadow: var(--shadow-light);
-        }
-
-        .search-box::placeholder {
-            opacity: 0.6;
-        }
-
-        .search-box:focus {
-            transform: translateY(-2px);
-            box-shadow: 
-                0 12px 40px rgba(33, 150, 243, 0.4),
-                0 0 0 3px rgba(100, 181, 246, 0.3);
-        }
-
-        /* Быстрые ссылки */
-        .quick-links {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(100px, 120px));
-            gap: 1.5rem;
-            animation: slideUp 0.8s ease-out 0.4s backwards;
-        }
-
-        .link-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-decoration: none;
-            transition: transform 0.2s ease;
-            cursor: pointer;
-        }
-
-        .link-item:hover {
-            transform: translateY(-5px);
-        }
-
-        .link-icon {
-            width: 64px;
-            height: 64px;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-        }
-
-        body.dark .link-icon {
-            background: var(--glass-bg-dark);
-            box-shadow: var(--shadow-dark);
-            border-color: rgba(33, 150, 243, 0.3);
-        }
-
-        body.light .link-icon {
-            background: var(--glass-bg-light);
-            box-shadow: var(--shadow-light);
-            border-color: rgba(13, 71, 161, 0.3);
-        }
-
-        .link-item:hover .link-icon {
-            box-shadow: 
-                0 12px 40px rgba(33, 150, 243, 0.6),
-                0 0 20px rgba(100, 181, 246, 0.5);
-            transform: rotate(5deg) scale(1.05);
-        }
-
-        .link-name {
-            font-size: 0.9rem;
-            text-align: center;
-            max-width: 100px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        body.dark .link-name {
-            color: var(--text-secondary-dark);
-        }
-
-        body.light .link-name {
-            color: var(--text-secondary-light);
-        }
-
-        /* Кнопки управления */
-        .controls {
-            position: fixed;
-            top: 2rem;
-            right: 2rem;
-            display: flex;
-            gap: 1rem;
-            z-index: 100;
-        }
-
-        .control-btn {
-            width: 48px;
-            height: 48px;
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.3rem;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-        }
-
-        body.dark .control-btn {
-            background: var(--glass-bg-dark);
-            color: var(--text-primary-dark);
-            box-shadow: var(--shadow-dark);
-        }
-
-        body.light .control-btn {
-            background: var(--glass-bg-light);
-            color: var(--text-primary-light);
-            box-shadow: var(--shadow-light);
-        }
-
-        .control-btn:hover {
-            transform: translateY(-2px) scale(1.05) rotate(5deg);
-            background: var(--accent);
-            color: white;
-            box-shadow: 0 12px 40px rgba(33, 150, 243, 0.6);
-        }
-
-        /* Модальное окно */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            padding: 2rem;
-            border-radius: 20px;
-            max-width: 400px;
-            width: 90%;
-            animation: slideUp 0.3s ease;
-        }
-
-        body.dark .modal-content {
-            background: var(--glass-bg-dark);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            box-shadow: var(--shadow-dark);
-        }
-
-        body.light .modal-content {
-            background: var(--glass-bg-light);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            box-shadow: var(--shadow-light);
-        }
-
-        .modal-content h2 {
-            margin-bottom: 1.5rem;
-            font-size: 1.5rem;
-        }
-
-        .modal-content input {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            margin-bottom: 1rem;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            outline: none;
-            transition: all 0.3s ease;
-        }
-
-        body.dark .modal-content input {
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--text-primary-dark);
-            border: 1px solid rgba(33, 150, 243, 0.3);
-        }
-
-        body.light .modal-content input {
-            background: rgba(0, 0, 0, 0.05);
-            color: var(--text-primary-light);
-            border: 1px solid rgba(13, 71, 161, 0.3);
-        }
-
-        .modal-content input:focus {
-            box-shadow: 
-                0 0 0 2px var(--accent),
-                0 0 20px rgba(33, 150, 243, 0.3);
-        }
-
-        .modal-buttons {
-            display: flex;
-            gap: 1rem;
-            justify-content: flex-end;
-        }
-
-        .modal-btn {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-
-        .modal-btn.primary {
-            background: var(--accent);
-            color: white;
-        }
-
-        .modal-btn.primary:hover {
-            background: var(--accent-hover);
-            transform: translateY(-2px) scale(1.05);
-            box-shadow: 0 8px 20px rgba(33, 150, 243, 0.5);
-        }
-
-        .modal-btn.secondary {
-            background: transparent;
-            border: 2px solid var(--accent);
-            color: var(--accent);
-        }
-
-        .modal-btn.secondary:hover {
-            background: var(--accent);
-            color: white;
-        }
-
-        /* Адаптивность */
-        @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
-            }
-
-            .controls {
-                top: 1rem;
-                right: 1rem;
-            }
-
-            .control-btn {
-                width: 40px;
-                height: 40px;
-                font-size: 1.1rem;
-            }
-
-            .quick-links {
-                grid-template-columns: repeat(auto-fit, minmax(80px, 100px));
-                gap: 1rem;
-            }
-
-            .link-icon {
-                width: 56px;
-                height: 56px;
-                font-size: 1.7rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .greeting {
-                margin-bottom: 2rem;
-            }
-
-            .search-container {
-                margin-bottom: 2rem;
-            }
-
-            .quick-links {
-                grid-template-columns: repeat(auto-fit, minmax(70px, 90px));
-            }
+        .pulse {
+            animation: pulse 2s infinite;
         }
     </style>
 </head>
 <body class="dark">
-    <!-- Canvas для анимированного океана -->
-    <canvas id="oceanCanvas"></canvas>
-    <div class="background-overlay"></div>
+    <!-- Фоновое изображение -->
+    <img id="bg-image" src="https://source.unsplash.com/1920x1080/?nature,dark" alt="Background">
+    
+    <!-- Градиентный overlay -->
+    <div id="overlay"></div>
 
-    <!-- Кнопки управления -->
-    <div class="controls">
-        <button class="control-btn" id="themeBtn" title="Сменить тему">🌓</button>
-    </div>
-
-    <!-- Главный контент -->
     <div class="container">
-        <div class="clock" id="clock">00:00</div>
-        <div class="date" id="date"></div>
-        <div class="greeting" id="greeting">Привет!</div>
-        
+        <!-- Часы -->
+        <div class="clock-container">
+            <div id="clock">00:00</div>
+            <div id="date"></div>
+        </div>
+
+        <!-- Приветствие -->
+        <div id="greeting">Привет!</div>
+
+        <!-- Поиск -->
         <div class="search-container">
-            <input type="text" class="search-box" id="searchBox" placeholder="Поиск в Google...">
+            <form id="searchForm">
+                <input type="text" id="search" placeholder="Поиск в Google..." autocomplete="off">
+            </form>
         </div>
 
-        <div class="quick-links" id="quickLinks"></div>
-    </div>
-
-    <!-- Модальное окно для редактирования -->
-    <div class="modal" id="modal">
-        <div class="modal-content">
-            <h2 id="modalTitle">Редактировать ссылку</h2>
-            <input type="text" id="modalName" placeholder="Название">
-            <input type="text" id="modalUrl" placeholder="URL (например, https://google.com)">
-            <input type="text" id="modalIcon" placeholder="Эмодзи иконка">
-            <div class="modal-buttons">
-                <button class="modal-btn secondary" id="modalCancel">Отмена</button>
-                <button class="modal-btn primary" id="modalSave">Сохранить</button>
-            </div>
+        <!-- Управление -->
+        <div class="controls">
+            <button class="btn btn-primary" id="newBg">Новый фон</button>
+            <button class="btn btn-secondary" id="themeToggle">🌙 Светлая</button>
         </div>
+
+        <!-- Быстрые ссылки -->
+        <div class="links-grid" id="linksGrid"></div>
     </div>
 
     <script>
-        // ========== АНИМИРОВАННЫЙ ОКЕАН И КОРАБЛЬ ==========
-        
-        const canvas = document.getElementById('oceanCanvas');
-        const ctx = canvas.getContext('2d');
-        
-        let width, height;
-        let waves = [];
-        let ship = {
-            x: 0,
-            y: 0,
-            scale: 1,
-            rotation: 0
-        };
-        let clouds = [];
-        let birds = [];
-        let time = 0;
+        // ===== ИНИЦИАЛИЗАЦИЯ =====
+        class NewTabApp {
+            constructor() {
+                this.isEditing = false;
+                this.init();
+            }
 
-        function resizeCanvas() {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
-            initWaves();
-            initClouds();
-            initBirds();
-        }
+            init() {
+                this.loadSettings();
+                this.updateClock();
+                this.updateGreeting();
+                this.updateLinks();
+                this.bindEvents();
+                this.updateBgOverlay();
+                setInterval(() => this.updateClock(), 1000);
+            }
 
-        function initWaves() {
-            waves = [];
-            for (let i = 0; i < 5; i++) {
-                waves.push({
-                    y: height * 0.6 + i * 40,
-                    amplitude: 20 + i * 5,
-                    frequency: 0.01 + i * 0.002,
-                    speed: 0.02 + i * 0.005,
-                    offset: Math.random() * Math.PI * 2
+            // ===== НАСТРОЙКИ =====
+            loadSettings() {
+                const settings = JSON.parse(localStorage.getItem('newtab-settings') || '{}');
+                document.body.className = settings.theme || 'dark';
+                
+                const links = settings.links || [
+                    { title: 'YouTube', url: 'https://youtube.com', icon: '🎥' },
+                    { title: 'GitHub', url: 'https://github.com', icon: '💻' },
+                    { title: 'Gmail', url: 'https://gmail.com', icon: '📧' },
+                    { title: 'Discord', url: 'https://discord.com', icon: '💬' },
+                    { title: 'Twitter', url: 'https://twitter.com', icon: '🐦' },
+                    { title: 'Reddit', url: 'https://reddit.com', icon: '🔥' }
+                ];
+                
+                this.settings = { ...settings, links };
+                this.saveSettings();
+            }
+
+            saveSettings() {
+                localStorage.setItem('newtab-settings', JSON.stringify(this.settings));
+            }
+
+            // ===== ЧАСЫ И ДАТА =====
+            updateClock() {
+                const now = new Date();
+                document.getElementById('clock').textContent = now.toLocaleTimeString('ru-RU', {
+                    hour12: false,
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+                
+                document.getElementById('date').textContent = now.toLocaleDateString('ru-RU', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
                 });
             }
-        }
 
-        function initClouds() {
-            clouds = [];
-            for (let i = 0; i < 5; i++) {
-                clouds.push({
-                    x: Math.random() * width,
-                    y: Math.random() * height * 0.3,
-                    size: 40 + Math.random() * 60,
-                    speed: 0.1 + Math.random() * 0.3
-                });
+            // ===== ПРИВЕТСТВИЕ =====
+            updateGreeting() {
+                const name = this.settings.name || '';
+                const greeting = name ? `Привет, ${name}!` : 'Привет!';
+                document.getElementById('greeting').textContent = greeting;
             }
-        }
 
-        function initBirds() {
-            birds = [];
-            for (let i = 0; i < 3; i++) {
-                birds.push({
-                    x: Math.random() * width,
-                    y: Math.random() * height * 0.4,
-                    speed: 1 + Math.random() * 2,
-                    wingPhase: Math.random() * Math.PI * 2
-                });
-            }
-        }
-
-        function drawSky(isDark) {
-            const gradient = ctx.createLinearGradient(0, 0, 0, height);
-            if (isDark) {
-                gradient.addColorStop(0, '#0a1929');
-                gradient.addColorStop(0.5, '#0d47a1');
-                gradient.addColorStop(1, '#1565c0');
-            } else {
-                gradient.addColorStop(0, '#42a5f5');
-                gradient.addColorStop(0.5, '#64b5f6');
-                gradient.addColorStop(1, '#90caf9');
-            }
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, width, height);
-        }
-
-        function drawSun(isDark) {
-            const sunY = height * 0.25;
-            const sunX = width * 0.8;
-            const sunRadius = 60;
-            
-            const gradient = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, sunRadius * 2);
-            if (isDark) {
-                gradient.addColorStop(0, 'rgba(144, 202, 249, 0.3)');
-                gradient.addColorStop(1, 'rgba(66, 165, 245, 0)');
-            } else {
-                gradient.addColorStop(0, 'rgba(255, 235, 59, 0.4)');
-                gradient.addColorStop(1, 'rgba(255, 193, 7, 0)');
-            }
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, width, height);
-            
-            ctx.beginPath();
-            ctx.arc(sunX, sunY, sunRadius, 0, Math.PI * 2);
-            ctx.fillStyle = isDark ? '#64b5f6' : '#ffd54f';
-            ctx.fill();
-        }
-
-        function drawClouds(isDark) {
-            clouds.forEach(cloud => {
-                ctx.save();
-                ctx.globalAlpha = isDark ? 0.2 : 0.6;
-                ctx.fillStyle = isDark ? '#1e88e5' : '#ffffff';
+            // ===== ПОИСК =====
+            setupSearch() {
+                const form = document.getElementById('searchForm');
+                const input = document.getElementById('search');
                 
-                ctx.beginPath();
-                ctx.arc(cloud.x, cloud.y, cloud.size, 0, Math.PI * 2);
-                ctx.arc(cloud.x + cloud.size * 0.6, cloud.y - cloud.size * 0.3, cloud.size * 0.8, 0, Math.PI * 2);
-                ctx.arc(cloud.x + cloud.size * 1.2, cloud.y, cloud.size * 0.9, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.restore();
-                
-                cloud.x += cloud.speed;
-                if (cloud.x > width + cloud.size * 2) {
-                    cloud.x = -cloud.size * 2;
-                }
-            });
-        }
-
-        function drawBirds(isDark) {
-            birds.forEach(bird => {
-                ctx.save();
-                ctx.globalAlpha = isDark ? 0.3 : 0.7;
-                ctx.strokeStyle = isDark ? '#42a5f5' : '#333333';
-                ctx.lineWidth = 2;
-                
-                const wingSpan = 15 + Math.sin(bird.wingPhase) * 5;
-                
-                ctx.beginPath();
-                ctx.moveTo(bird.x, bird.y);
-                ctx.quadraticCurveTo(bird.x - wingSpan, bird.y - 10, bird.x - wingSpan * 1.5, bird.y);
-                ctx.moveTo(bird.x, bird.y);
-                ctx.quadraticCurveTo(bird.x + wingSpan, bird.y - 10, bird.x + wingSpan * 1.5, bird.y);
-                ctx.stroke();
-                ctx.restore();
-                
-                bird.x += bird.speed;
-                bird.wingPhase += 0.1;
-                if (bird.x > width + 50) {
-                    bird.x = -50;
-                    bird.y = Math.random() * height * 0.4;
-                }
-            });
-        }
-
-        function drawWaves(isDark) {
-            waves.forEach((wave, index) => {
-                ctx.beginPath();
-                ctx.moveTo(0, height);
-                
-                for (let x = 0; x <= width; x += 5) {
-                    const y = wave.y + Math.sin(x * wave.frequency + wave.offset + time * wave.speed) * wave.amplitude;
-                    ctx.lineTo(x, y);
-                }
-                
-                ctx.lineTo(width, height);
-                ctx.closePath();
-                
-                const alpha = 0.2 + index * 0.1;
-                if (isDark) {
-                    ctx.fillStyle = `rgba(13, 71, 161, ${alpha})`;
-                } else {
-                    ctx.fillStyle = `rgba(33, 150, 243, ${alpha})`;
-                }
-                ctx.fill();
-            });
-        }
-
-        function drawShip(isDark) {
-            const baseY = height * 0.6 + Math.sin(time * 0.02) * 15;
-            ship.y = baseY;
-            ship.x = width * 0.3 + Math.sin(time * 0.01) * 50;
-            ship.rotation = Math.sin(time * 0.02) * 0.05;
-            
-            ctx.save();
-            ctx.translate(ship.x, ship.y);
-            ctx.rotate(ship.rotation);
-            ctx.scale(ship.scale, ship.scale);
-            
-            // Корпус корабля
-            ctx.fillStyle = isDark ? '#8B4513' : '#A0522D';
-            ctx.beginPath();
-            ctx.moveTo(-50, 0);
-            ctx.lineTo(-40, 30);
-            ctx.lineTo(40, 30);
-            ctx.lineTo(50, 0);
-            ctx.closePath();
-            ctx.fill();
-            
-            // Палуба
-            ctx.fillStyle = isDark ? '#654321' : '#8B6914';
-            ctx.fillRect(-45, -5, 90, 8);
-            
-            // Мачта
-            ctx.strokeStyle = isDark ? '#8B4513' : '#654321';
-            ctx.lineWidth = 4;
-            ctx.beginPath();
-            ctx.moveTo(0, -5);
-            ctx.lineTo(0, -70);
-            ctx.stroke();
-            
-            // Парус (Going Merry стиль)
-            ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.8)' : 'rgba(255, 255, 255, 0.95)';
-            ctx.beginPath();
-            ctx.moveTo(0, -65);
-            ctx.quadraticCurveTo(-35 + Math.sin(time * 0.05) * 5, -50, -30, -30);
-            ctx.lineTo(0, -30);
-            ctx.closePath();
-            ctx.fill();
-            
-            // Флаг (череп)
-            ctx.fillStyle = '#000000';
-            ctx.fillRect(-2, -75, 4, 8);
-            ctx.font = '16px Arial';
-            ctx.fillText('☠️', -10, -75);
-            
-            // Голова барашка (символ Going Merry)
-            ctx.fillStyle = isDark ? '#FFE4B5' : '#FAEBD7';
-            ctx.beginPath();
-            ctx.arc(-50, 10, 12, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Рога
-            ctx.strokeStyle = isDark ? '#D2691E' : '#8B4513';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.arc(-58, 5, 6, 0, Math.PI);
-            ctx.arc(-42, 5, 6, 0, Math.PI);
-            ctx.stroke();
-            
-            ctx.restore();
-        }
-
-        function animate() {
-            const isDark = document.body.classList.contains('dark');
-            
-            drawSky(isDark);
-            drawSun(isDark);
-            drawClouds(isDark);
-            drawBirds(isDark);
-            drawWaves(isDark);
-            drawShip(isDark);
-            
-            time++;
-            requestAnimationFrame(animate);
-        }
-
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
-        animate();
-
-        // ========== ИНИЦИАЛИЗАЦИЯ ==========
-        
-        const defaultLinks = [
-            { name: 'YouTube', url: 'https://youtube.com', icon: '▶️' },
-            { name: 'Gmail', url: 'https://gmail.com', icon: '📧' },
-            { name: 'GitHub', url: 'https://github.com', icon: '🐙' },
-            { name: 'Drive', url: 'https://drive.google.com', icon: '📁' },
-            { name: 'Calendar', url: 'https://calendar.google.com', icon: '📅' },
-            { name: 'Maps', url: 'https://maps.google.com', icon: '🗺️' }
-        ];
-
-        let theme = localStorage.getItem('theme') || 'dark';
-        let userName = localStorage.getItem('userName') || '';
-        let quickLinks = JSON.parse(localStorage.getItem('quickLinks')) || defaultLinks;
-        let editingIndex = -1;
-
-        // ========== ЧАСЫ И ДАТА ==========
-        
-        function updateClock() {
-            const now = new Date();
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            document.getElementById('clock').textContent = `${hours}:${minutes}`;
-        }
-
-        function updateDate() {
-            const now = new Date();
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            const dateStr = now.toLocaleDateString('ru-RU', options);
-            document.getElementById('date').textContent = dateStr;
-        }
-
-        // ========== ПРИВЕТСТВИЕ ==========
-        
-        function updateGreeting() {
-            const hour = new Date().getHours();
-            let greetingText = 'Привет';
-            
-            if (hour >= 5 && hour < 12) greetingText = 'Доброе утро';
-            else if (hour >= 12 && hour < 18) greetingText = 'Добрый день';
-            else if (hour >= 18 && hour < 23) greetingText = 'Добрый вечер';
-            else greetingText = 'Доброй ночи';
-
-            if (userName) greetingText += `, ${userName}`;
-            document.getElementById('greeting').textContent = greetingText + '!';
-        }
-
-        // ========== ТЕМА ==========
-        
-        function setTheme(newTheme) {
-            document.body.className = newTheme;
-            theme = newTheme;
-            localStorage.setItem('theme', newTheme);
-        }
-
-        function toggleTheme() {
-            setTheme(theme === 'dark' ? 'light' : 'dark');
-        }
-
-        // ========== БЫСТРЫЕ ССЫЛКИ ==========
-        
-        function renderQuickLinks() {
-            const container = document.getElementById('quickLinks');
-            container.innerHTML = '';
-            
-            quickLinks.forEach((link, index) => {
-                const linkEl = document.createElement('a');
-                linkEl.className = 'link-item';
-                linkEl.href = link.url;
-                linkEl.innerHTML = `
-                    <div class="link-icon">${link.icon}</div>
-                    <div class="link-name">${link.name}</div>
-                `;
-                
-                linkEl.addEventListener('click', (e) => {
-                    if (e.ctrlKey || e.metaKey) {
-                        e.preventDefault();
-                        openEditModal(index);
+                form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const query = input.value.trim();
+                    if (query) {
+                        window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank');
                     }
                 });
-                
-                container.appendChild(linkEl);
-            });
-        }
 
-        function saveQuickLinks() {
-            localStorage.setItem('quickLinks', JSON.stringify(quickLinks));
-            renderQuickLinks();
-        }
-
-        // ========== МОДАЛЬНОЕ ОКНО ==========
-        
-        function openEditModal(index) {
-            editingIndex = index;
-            const link = quickLinks[index];
-            
-            document.getElementById('modalTitle').textContent = 'Редактировать ссылку';
-            document.getElementById('modalName').value = link.name;
-            document.getElementById('modalUrl').value = link.url;
-            document.getElementById('modalIcon').value = link.icon;
-            document.getElementById('modal').classList.add('active');
-        }
-
-        function closeModal() {
-            document.getElementById('modal').classList.remove('active');
-            editingIndex = -1;
-        }
-
-        function saveModal() {
-            const name = document.getElementById('modalName').value.trim();
-            const url = document.getElementById('modalUrl').value.trim();
-            const icon = document.getElementById('modalIcon').value.trim();
-            
-            if (!name || !url || !icon) {
-                alert('Заполните все поля!');
-                return;
+                // Enter для поиска
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') form.dispatchEvent(new Event('submit'));
+                });
             }
 
-            if (editingIndex >= 0) {
-                quickLinks[editingIndex] = { name, url, icon };
+            // ===== БЫСТРЫЕ ССЫЛКИ =====
+            updateLinks() {
+                const grid = document.getElementById('linksGrid');
+                grid.innerHTML = this.settings.links.map((link, index) => `
+                    <a href="${link.url}" target="_blank" class="link-item" data-index="${index}" title="Ctrl+Click для редактирования">
+                        <div class="link-icon">${link.icon}</div>
+                        <div class="link-title">${link.title}</div>
+                    </a>
+                `).join('');
             }
-            
-            saveQuickLinks();
-            closeModal();
-        }
 
-        // ========== ПОИСК ==========
-        
-        document.getElementById('searchBox').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                const query = e.target.value.trim();
-                if (query) {
-                    window.location.href = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+            setupLinks() {
+                document.getElementById('linksGrid').addEventListener('click', (e) => {
+                    const link = e.target.closest('.link-item');
+                    if (!link || !e.ctrlKey) return;
+
+                    e.preventDefault();
+                    this.editLink(link.dataset.index);
+                });
+            }
+
+            async editLink(index) {
+                const link = this.settings.links[index];
+                const newTitle = prompt('Название ссылки:', link.title);
+                const newUrl = prompt('URL:', link.url);
+                const newIcon = prompt('Иконка (эмодзи):', link.icon);
+
+                if (newTitle && newUrl && newIcon) {
+                    this.settings.links[index] = { title: newTitle, url: newUrl, icon: newIcon };
+                    this.saveSettings();
+                    this.updateLinks();
                 }
             }
-        });
 
-        // ========== ПРИВЕТСТВИЕ (КЛИК) ==========
-        
-        document.getElementById('greeting').addEventListener('click', () => {
-            const newName = prompt('Введите ваше имя:', userName);
-            if (newName !== null) {
-                userName = newName.trim();
-                localStorage.setItem('userName', userName);
-                updateGreeting();
+            // ===== ФОН =====
+            newBackground() {
+                const img = document.getElementById('bg-image');
+                img.style.opacity = '0';
+                
+                setTimeout(() => {
+                    img.src = `https://source.unsplash.com/1920x1080/?${this.getRandomTheme()}`;
+                }, 400);
+                
+                img.onload = () => {
+                    img.style.opacity = '1';
+                };
             }
-        });
 
-        // ========== КНОПКИ УПРАВЛЕНИЯ ==========
-        
-        document.getElementById('themeBtn').addEventListener('click', toggleTheme);
-
-        // ========== МОДАЛЬНОЕ ОКНО (КНОПКИ) ==========
-        
-        document.getElementById('modalCancel').addEventListener('click', closeModal);
-        document.getElementById('modalSave').addEventListener('click', saveModal);
-        
-        document.getElementById('modal').addEventListener('click', (e) => {
-            if (e.target.id === 'modal') closeModal();
-        });
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && document.getElementById('modal').classList.contains('active')) {
-                closeModal();
+            getRandomTheme() {
+                const themes = ['nature', 'abstract', 'city', 'space', 'ocean', 'mountains'];
+                return themes[Math.floor(Math.random() * themes.length)];
             }
-        });
 
-        // ========== ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ ==========
-        
-        function init() {
-            setTheme(theme);
-            updateClock();
-            updateDate();
-            updateGreeting();
-            renderQuickLinks();
-            
-            setInterval(updateClock, 1000);
-            
-            setInterval(() => {
-                updateDate();
-                updateGreeting();
-            }, 60000);
+            // ===== ТЕМА =====
+            toggleTheme() {
+                const body = document.body;
+                const isDark = body.classList.contains('dark');
+                
+                body.classList.toggle('dark', !isDark);
+                body.classList.toggle('light', isDark);
+                
+                this.settings.theme = isDark ? 'light' : 'dark';
+                document.getElementById('themeToggle').textContent = isDark ? '☀️ Темная' : '🌙 Светлая';
+                this.saveSettings();
+            }
+
+            // ===== OVERLAY =====
+            updateBgOverlay() {
+                const overlay = document.getElementById('overlay');
+                const isDark = document.body.classList.contains('dark');
+                
+                overlay.style.opacity = isDark ? '0.6' : '0.4';
+            }
+
+            // ===== СОБЫТИЯ =====
+            bindEvents() {
+                // Поиск
+                this.setupSearch();
+
+                // Ссылки
+                this.setupLinks();
+
+                // Кнопки
+                document.getElementById('newBg').addEventListener('click', () => this.newBackground());
+                document.getElementById('themeToggle').addEventListener('click', () => this.toggleTheme());
+
+                // Имя пользователя (Ctrl+N)
+                document.addEventListener('keydown', (e) => {
+                    if (e.ctrlKey && e.key === 'n') {
+                        e.preventDefault();
+                        const name = prompt('Ваше имя:');
+                        if (name) {
+                            this.settings.name = name;
+                            this.saveSettings();
+                            this.updateGreeting();
+                        }
+                    }
+                });
+
+                // Обновление overlay при смене темы
+                const observer = new MutationObserver(() => this.updateBgOverlay());
+                observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+            }
         }
 
-        init();
+        // ===== ЗАПУСК =====
+        document.addEventListener('DOMContentLoaded', () => {
+            new NewTabApp();
+        });
+    </script>
+</body>
+</html>
