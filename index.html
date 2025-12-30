@@ -1,539 +1,611 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>New Tab</title>
     <style>
-        /* ===== ГЛОБАЛЬНЫЕ СТИЛИ ===== */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        :root {
+            --bg-primary: #0f0f1e;
+            --bg-secondary: #1a1a2e;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0b8;
+            --accent: #6366f1;
+            --accent-hover: #818cf8;
+            --shadow: rgba(0, 0, 0, 0.3);
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            height: 100vh;
-            overflow: hidden;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        /* ===== ТЕМЫ ===== */
-        body.light {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #333;
-        }
-
-        body.dark {
-            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
-            color: #e0e0e0;
-        }
-
-        /* ===== ФОНОВОЕ ИЗОБРАЖЕНИЕ ===== */
-        #bg-image {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: -2;
-            transition: opacity 0.8s ease;
-        }
-
-        /* ===== ГРАДИЕНТНЫЙ OVERLAY ===== */
-        #overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            pointer-events: none;
-            background: radial-gradient(circle at 20% 80%, rgba(120,119,198,0.3) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 20%, rgba(255,119,198,0.3) 0%, transparent 50%),
-                        radial-gradient(circle at 40% 40%, rgba(120,219,255,0.3) 0%, transparent 50%);
-            transition: opacity 0.4s ease;
-        }
-
-        /* ===== ГЛАВНЫЙ КОНТЕЙНЕР ===== */
-        .container {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 50%, #16213e 100%);
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
+            color: var(--text-primary);
+            overflow-x: hidden;
             position: relative;
         }
 
-        /* ===== ЧАСЫ ===== */
-        .clock-container {
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 50%);
+            animation: rotate 30s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes rotate {
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        header {
             text-align: center;
-            margin-bottom: 1rem;
-            animation: fadeInUp 1s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-bottom: 3rem;
+            animation: fadeIn 0.6s ease-out;
         }
 
-        #clock {
-            font-size: clamp(4rem, 12vw, 10rem);
+        .greeting {
+            font-size: 2.5rem;
             font-weight: 300;
-            letter-spacing: 0.1em;
             margin-bottom: 0.5rem;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: 20px;
-            padding: 1rem 2rem;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, #fff 0%, #a0a0b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
-        body.dark #clock {
-            background: rgba(255, 255, 255, 0.05);
-            color: #fff;
-        }
-
-        body.light #clock {
-            background: rgba(255, 255, 255, 0.9);
-            color: #333;
-        }
-
-        #date {
-            font-size: clamp(1.1rem, 3vw, 1.5rem);
-            opacity: 0.8;
+        .date {
+            font-size: 1rem;
+            color: var(--text-secondary);
             font-weight: 400;
         }
 
-        /* ===== ПРИВЕТСТВИЕ ===== */
-        #greeting {
-            font-size: clamp(1.2rem, 4vw, 2rem);
-            margin: 1.5rem 0;
+        /* Center Clock */
+        .clock-section {
+            text-align: center;
+            margin-bottom: 4rem;
+            animation: fadeIn 0.8s ease-out 0.2s backwards;
+        }
+
+        .clock {
+            font-size: 6rem;
             font-weight: 300;
-            animation: fadeInUp 1s cubic-bezier(0.4, 0, 0.2, 1) 0.2s both;
+            letter-spacing: -0.02em;
+            margin-bottom: 1rem;
+            font-variant-numeric: tabular-nums;
         }
 
-        /* ===== ПОЛЕ ПОИСКА ===== */
-        .search-container {
-            position: relative;
-            width: 100%;
-            max-width: 500px;
-            margin: 2rem 0;
-            animation: fadeInUp 1s cubic-bezier(0.4, 0, 0.2, 1) 0.4s both;
-        }
-
-        #search {
-            width: 100%;
-            padding: 1.2rem 1.5rem;
-            font-size: clamp(1rem, 3vw, 1.2rem);
-            border: none;
-            border-radius: 25px;
-            outline: none;
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            color: inherit;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-        }
-
-        body.dark #search {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        body.light #search {
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid rgba(0, 0, 0, 0.1);
-        }
-
-        #search:focus {
-            transform: scale(1.02);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
-        }
-
-        #search::placeholder {
-            color: inherit;
-            opacity: 0.6;
-        }
-
-        /* ===== ПАНЕЛЬ УПРАВЛЕНИЯ ===== */
-        .controls {
-            display: flex;
-            gap: 1rem;
-            margin: 2rem 0;
-            animation: fadeInUp 1s cubic-bezier(0.4, 0, 0.2, 1) 0.6s both;
-        }
-
-        .btn {
-            padding: 0.8rem 1.5rem;
-            border: none;
-            border-radius: 25px;
-            font-size: 0.9rem;
-            font-weight: 500;
+        .seconds-toggle {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(10px);
+            color: var(--text-secondary);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
         }
 
-        .btn-primary {
-            background: rgba(59, 130, 246, 0.8);
-            color: white;
-            border: 1px solid rgba(59, 130, 246, 0.3);
+        .seconds-toggle:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
         }
 
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.15);
-            color: inherit;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        body.light .btn-secondary {
-            background: rgba(255, 255, 255, 0.9);
-            color: #333;
-            border: 1px solid rgba(0, 0, 0, 0.1);
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        /* ===== БЫСТРЫЕ ССЫЛКИ ===== */
-        .links-grid {
+        /* Main Dashboard */
+        .dashboard {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 1rem;
-            max-width: 800px;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px var(--shadow);
+            transition: all 0.3s ease;
+            animation: slideIn 0.6s ease-out backwards;
+        }
+
+        .panel:nth-child(1) { animation-delay: 0.3s; }
+        .panel:nth-child(2) { animation-delay: 0.4s; }
+        .panel:nth-child(3) { animation-delay: 0.5s; }
+
+        .panel:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .panel-title {
+            font-size: 1.25rem;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .panel-title::before {
+            font-size: 1.5rem;
+        }
+
+        /* Search Panel */
+        .search-panel .panel-title::before { content: '🔍'; }
+
+        .search-input {
             width: 100%;
-            margin-top: 2rem;
-            animation: fadeInUp 1s cubic-bezier(0.4, 0, 0.2, 1) 0.8s both;
+            padding: 0.875rem 1.25rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .search-input:focus {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .search-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        /* Weather Panel */
+        .weather-panel .panel-title::before { content: '🌤'; }
+
+        .weather-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .weather-main {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .weather-temp {
+            font-size: 3rem;
+            font-weight: 300;
+        }
+
+        .weather-icon {
+            font-size: 4rem;
+        }
+
+        .weather-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .weather-city {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+        }
+
+        .weather-description {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            text-transform: capitalize;
+        }
+
+        .city-input {
+            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .city-input:focus {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--accent);
+        }
+
+        /* Quick Links Panel */
+        .links-panel .panel-title::before { content: '⭐'; }
+
+        .quick-links {
+            display: grid;
+            gap: 0.75rem;
         }
 
         .link-item {
-            aspect-ratio: 1;
-            border-radius: 20px;
             display: flex;
-            flex-direction: column;
             align-items: center;
-            justify-content: center;
+            gap: 1rem;
+            padding: 0.875rem 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid transparent;
+            border-radius: 12px;
             text-decoration: none;
-            color: inherit;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
             position: relative;
-            overflow: hidden;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-            cursor: pointer;
-        }
-
-        body.light .link-item {
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            color: #333;
         }
 
         .link-item:hover {
-            transform: translateY(-5px) scale(1.05);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--glass-border);
+            transform: translateX(5px);
         }
 
         .link-icon {
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .link-title {
-            font-size: 0.8rem;
-            font-weight: 500;
+            font-size: 1.5rem;
+            width: 2rem;
             text-align: center;
-            pointer-events: none;
         }
 
-        /* Режим редактирования */
-        .link-item.editing {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+        .link-label {
+            flex: 1;
+            font-size: 0.9375rem;
+            font-weight: 400;
         }
 
-        /* ===== АДАПТИВНОСТЬ ===== */
+        .link-edit {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 0.25rem;
+            opacity: 0;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .link-item:hover .link-edit {
+            opacity: 1;
+        }
+
+        .link-edit:hover {
+            color: var(--accent);
+        }
+
+        .edit-form {
+            display: none;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .edit-form.active {
+            display: flex;
+        }
+
+        .edit-input {
+            flex: 1;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            outline: none;
+        }
+
+        .edit-btn {
+            padding: 0.5rem 1rem;
+            background: var(--accent);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+        }
+
+        .edit-btn:hover {
+            background: var(--accent-hover);
+        }
+
+        /* Responsive */
         @media (max-width: 768px) {
+            .greeting {
+                font-size: 2rem;
+            }
+
+            .clock {
+                font-size: 4rem;
+            }
+
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+
             .container {
-                padding: 1rem;
-            }
-            
-            .controls {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .btn {
-                width: 100%;
-                max-width: 250px;
+                padding: 1.5rem;
             }
         }
 
         @media (max-width: 480px) {
-            .links-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 0.8rem;
+            .greeting {
+                font-size: 1.75rem;
             }
-        }
 
-        /* ===== АНИМАЦИИ ===== */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
+            .clock {
+                font-size: 3rem;
             }
-            to {
-                opacity: 1;
-                transform: translateY(0);
+
+            .panel {
+                padding: 1.5rem;
             }
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-
-        .pulse {
-            animation: pulse 2s infinite;
         }
     </style>
 </head>
-<body class="dark">
-    <!-- Фоновое изображение -->
-    <img id="bg-image" src="https://source.unsplash.com/1920x1080/?nature,dark" alt="Background">
-    
-    <!-- Градиентный overlay -->
-    <div id="overlay"></div>
-
+<body>
     <div class="container">
-        <!-- Часы -->
-        <div class="clock-container">
-            <div id="clock">00:00</div>
-            <div id="date"></div>
+        <header>
+            <h1 class="greeting" id="greeting">Good morning</h1>
+            <p class="date" id="date">Tuesday, December 30, 2025</p>
+        </header>
+
+        <section class="clock-section">
+            <div class="clock" id="clock">00:00</div>
+            <button class="seconds-toggle" id="secondsToggle">Show seconds</button>
+        </section>
+
+        <div class="dashboard">
+            <div class="panel search-panel">
+                <h2 class="panel-title">Search</h2>
+                <form id="searchForm">
+                    <input 
+                        type="text" 
+                        class="search-input" 
+                        id="searchInput"
+                        placeholder="Search Google..."
+                        autocomplete="off"
+                    >
+                </form>
+            </div>
+
+            <div class="panel weather-panel">
+                <h2 class="panel-title">Weather</h2>
+                <div class="weather-content">
+                    <div class="weather-main">
+                        <div>
+                            <div class="weather-temp" id="weatherTemp">--°</div>
+                            <div class="weather-city" id="weatherCity">Loading...</div>
+                        </div>
+                        <div class="weather-icon" id="weatherIcon">☀️</div>
+                    </div>
+                    <div class="weather-description" id="weatherDesc">Clear sky</div>
+                    <input 
+                        type="text" 
+                        class="city-input" 
+                        id="cityInput"
+                        placeholder="Enter city name"
+                    >
+                </div>
+            </div>
+
+            <div class="panel links-panel">
+                <h2 class="panel-title">Quick Links</h2>
+                <div class="quick-links" id="quickLinks"></div>
+            </div>
         </div>
-
-        <!-- Приветствие -->
-        <div id="greeting">Привет!</div>
-
-        <!-- Поиск -->
-        <div class="search-container">
-            <form id="searchForm">
-                <input type="text" id="search" placeholder="Поиск в Google..." autocomplete="off">
-            </form>
-        </div>
-
-        <!-- Управление -->
-        <div class="controls">
-            <button class="btn btn-primary" id="newBg">Новый фон</button>
-            <button class="btn btn-secondary" id="themeToggle">🌙 Светлая</button>
-        </div>
-
-        <!-- Быстрые ссылки -->
-        <div class="links-grid" id="linksGrid"></div>
     </div>
 
     <script>
-        // ===== ИНИЦИАЛИЗАЦИЯ =====
-        class NewTabApp {
-            constructor() {
-                this.isEditing = false;
-                this.init();
-            }
+        // Configuration
+        const WEATHER_API_KEY = 'YOUR_API_KEY_HERE';
+        const DEFAULT_LINKS = [
+            { icon: '📺', label: 'YouTube', url: 'https://youtube.com' },
+            { icon: '💻', label: 'GitHub', url: 'https://github.com' },
+            { icon: '📧', label: 'Gmail', url: 'https://mail.google.com' },
+            { icon: '📁', label: 'Drive', url: 'https://drive.google.com' },
+            { icon: '➕', label: 'Custom Link', url: '' }
+        ];
 
-            init() {
-                this.loadSettings();
-                this.updateClock();
-                this.updateGreeting();
-                this.updateLinks();
-                this.bindEvents();
-                this.updateBgOverlay();
-                setInterval(() => this.updateClock(), 1000);
-            }
+        // State
+        let showSeconds = localStorage.getItem('showSeconds') === 'true';
+        let quickLinks = JSON.parse(localStorage.getItem('quickLinks')) || DEFAULT_LINKS;
+        let currentCity = localStorage.getItem('city') || 'London';
 
-            // ===== НАСТРОЙКИ =====
-            loadSettings() {
-                const settings = JSON.parse(localStorage.getItem('newtab-settings') || '{}');
-                document.body.className = settings.theme || 'dark';
+        // Greeting & Date
+        function updateGreeting() {
+            const hour = new Date().getHours();
+            const greetingText = 
+                hour < 12 ? 'Good morning' :
+                hour < 18 ? 'Good afternoon' : 
+                'Good evening';
+            document.getElementById('greeting').textContent = greetingText;
+        }
+
+        function updateDate() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('date').textContent = now.toLocaleDateString('en-US', options);
+        }
+
+        // Clock
+        function updateClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            
+            const timeString = showSeconds ? `${hours}:${minutes}:${seconds}` : `${hours}:${minutes}`;
+            document.getElementById('clock').textContent = timeString;
+        }
+
+        // Toggle seconds
+        document.getElementById('secondsToggle').addEventListener('click', () => {
+            showSeconds = !showSeconds;
+            localStorage.setItem('showSeconds', showSeconds);
+            document.getElementById('secondsToggle').textContent = 
+                showSeconds ? 'Hide seconds' : 'Show seconds';
+            updateClock();
+        });
+
+        // Search
+        document.getElementById('searchForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const query = document.getElementById('searchInput').value.trim();
+            if (query) {
+                window.location.href = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+            }
+        });
+
+        // Weather
+        const weatherIcons = {
+            '01d': '☀️', '01n': '🌙',
+            '02d': '⛅', '02n': '☁️',
+            '03d': '☁️', '03n': '☁️',
+            '04d': '☁️', '04n': '☁️',
+            '09d': '🌧️', '09n': '🌧️',
+            '10d': '🌦️', '10n': '🌧️',
+            '11d': '⛈️', '11n': '⛈️',
+            '13d': '❄️', '13n': '❄️',
+            '50d': '🌫️', '50n': '🌫️'
+        };
+
+        async function fetchWeather(city) {
+            try {
+                const response = await fetch(
+                    `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${WEATHER_API_KEY}&units=metric`
+                );
                 
-                const links = settings.links || [
-                    { title: 'YouTube', url: 'https://youtube.com', icon: '🎥' },
-                    { title: 'GitHub', url: 'https://github.com', icon: '💻' },
-                    { title: 'Gmail', url: 'https://gmail.com', icon: '📧' },
-                    { title: 'Discord', url: 'https://discord.com', icon: '💬' },
-                    { title: 'Twitter', url: 'https://twitter.com', icon: '🐦' },
-                    { title: 'Reddit', url: 'https://reddit.com', icon: '🔥' }
-                ];
+                if (!response.ok) throw new Error('City not found');
                 
-                this.settings = { ...settings, links };
-                this.saveSettings();
-            }
-
-            saveSettings() {
-                localStorage.setItem('newtab-settings', JSON.stringify(this.settings));
-            }
-
-            // ===== ЧАСЫ И ДАТА =====
-            updateClock() {
-                const now = new Date();
-                document.getElementById('clock').textContent = now.toLocaleTimeString('ru-RU', {
-                    hour12: false,
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit'
-                });
+                const data = await response.json();
                 
-                document.getElementById('date').textContent = now.toLocaleDateString('ru-RU', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                });
-            }
-
-            // ===== ПРИВЕТСТВИЕ =====
-            updateGreeting() {
-                const name = this.settings.name || '';
-                const greeting = name ? `Привет, ${name}!` : 'Привет!';
-                document.getElementById('greeting').textContent = greeting;
-            }
-
-            // ===== ПОИСК =====
-            setupSearch() {
-                const form = document.getElementById('searchForm');
-                const input = document.getElementById('search');
+                document.getElementById('weatherTemp').textContent = `${Math.round(data.main.temp)}°`;
+                document.getElementById('weatherCity').textContent = data.name;
+                document.getElementById('weatherDesc').textContent = data.weather[0].description;
+                document.getElementById('weatherIcon').textContent = 
+                    weatherIcons[data.weather[0].icon] || '🌤️';
                 
-                form.addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    const query = input.value.trim();
-                    if (query) {
-                        window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank');
-                    }
-                });
-
-                // Enter для поиска
-                input.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') form.dispatchEvent(new Event('submit'));
-                });
-            }
-
-            // ===== БЫСТРЫЕ ССЫЛКИ =====
-            updateLinks() {
-                const grid = document.getElementById('linksGrid');
-                grid.innerHTML = this.settings.links.map((link, index) => `
-                    <a href="${link.url}" target="_blank" class="link-item" data-index="${index}" title="Ctrl+Click для редактирования">
-                        <div class="link-icon">${link.icon}</div>
-                        <div class="link-title">${link.title}</div>
-                    </a>
-                `).join('');
-            }
-
-            setupLinks() {
-                document.getElementById('linksGrid').addEventListener('click', (e) => {
-                    const link = e.target.closest('.link-item');
-                    if (!link || !e.ctrlKey) return;
-
-                    e.preventDefault();
-                    this.editLink(link.dataset.index);
-                });
-            }
-
-            async editLink(index) {
-                const link = this.settings.links[index];
-                const newTitle = prompt('Название ссылки:', link.title);
-                const newUrl = prompt('URL:', link.url);
-                const newIcon = prompt('Иконка (эмодзи):', link.icon);
-
-                if (newTitle && newUrl && newIcon) {
-                    this.settings.links[index] = { title: newTitle, url: newUrl, icon: newIcon };
-                    this.saveSettings();
-                    this.updateLinks();
-                }
-            }
-
-            // ===== ФОН =====
-            newBackground() {
-                const img = document.getElementById('bg-image');
-                img.style.opacity = '0';
-                
-                setTimeout(() => {
-                    img.src = `https://source.unsplash.com/1920x1080/?${this.getRandomTheme()}`;
-                }, 400);
-                
-                img.onload = () => {
-                    img.style.opacity = '1';
-                };
-            }
-
-            getRandomTheme() {
-                const themes = ['nature', 'abstract', 'city', 'space', 'ocean', 'mountains'];
-                return themes[Math.floor(Math.random() * themes.length)];
-            }
-
-            // ===== ТЕМА =====
-            toggleTheme() {
-                const body = document.body;
-                const isDark = body.classList.contains('dark');
-                
-                body.classList.toggle('dark', !isDark);
-                body.classList.toggle('light', isDark);
-                
-                this.settings.theme = isDark ? 'light' : 'dark';
-                document.getElementById('themeToggle').textContent = isDark ? '☀️ Темная' : '🌙 Светлая';
-                this.saveSettings();
-            }
-
-            // ===== OVERLAY =====
-            updateBgOverlay() {
-                const overlay = document.getElementById('overlay');
-                const isDark = document.body.classList.contains('dark');
-                
-                overlay.style.opacity = isDark ? '0.6' : '0.4';
-            }
-
-            // ===== СОБЫТИЯ =====
-            bindEvents() {
-                // Поиск
-                this.setupSearch();
-
-                // Ссылки
-                this.setupLinks();
-
-                // Кнопки
-                document.getElementById('newBg').addEventListener('click', () => this.newBackground());
-                document.getElementById('themeToggle').addEventListener('click', () => this.toggleTheme());
-
-                // Имя пользователя (Ctrl+N)
-                document.addEventListener('keydown', (e) => {
-                    if (e.ctrlKey && e.key === 'n') {
-                        e.preventDefault();
-                        const name = prompt('Ваше имя:');
-                        if (name) {
-                            this.settings.name = name;
-                            this.saveSettings();
-                            this.updateGreeting();
-                        }
-                    }
-                });
-
-                // Обновление overlay при смене темы
-                const observer = new MutationObserver(() => this.updateBgOverlay());
-                observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+                currentCity = city;
+                localStorage.setItem('city', city);
+            } catch (error) {
+                document.getElementById('weatherCity').textContent = 'City not found';
+                document.getElementById('weatherTemp').textContent = '--°';
             }
         }
 
-        // ===== ЗАПУСК =====
-        document.addEventListener('DOMContentLoaded', () => {
-            new NewTabApp();
+        document.getElementById('cityInput').addEventListener('change', (e) => {
+            const city = e.target.value.trim();
+            if (city) {
+                fetchWeather(city);
+            }
         });
+
+        // Quick Links
+        function renderLinks() {
+            const container = document.getElementById('quickLinks');
+            container.innerHTML = '';
+            
+            quickLinks.forEach((link, index) => {
+                const linkDiv = document.createElement('div');
+                linkDiv.style.position = 'relative';
+                
+                const linkEl = document.createElement('a');
+                linkEl.className = 'link-item';
+                linkEl.href = link.url || '#';
+                if (link.url) linkEl.target = '_blank';
+                
+                linkEl.innerHTML = `
+                    <span class="link-icon">${link.icon}</span>
+                    <span class="link-label">${link.label}</span>
+                    <button class="link-edit" onclick="editLink(${index})">✎</button>
+                `;
+                
+                const editForm = document.createElement('div');
+                editForm.className = 'edit-form';
+                editForm.id = `edit-${index}`;
+                editForm.innerHTML = `
+                    <input type="text" class="edit-input" placeholder="Label" value="${link.label}">
+                    <input type="text" class="edit-input" placeholder="URL" value="${link.url}">
+                    <button class="edit-btn" onclick="saveLink(${index})">Save</button>
+                `;
+                
+                linkDiv.appendChild(linkEl);
+                linkDiv.appendChild(editForm);
+                container.appendChild(linkDiv);
+            });
+        }
+
+        window.editLink = (index) => {
+            document.getElementById(`edit-${index}`).classList.toggle('active');
+        };
+
+        window.saveLink = (index) => {
+            const form = document.getElementById(`edit-${index}`);
+            const inputs = form.querySelectorAll('.edit-input');
+            
+            quickLinks[index].label = inputs[0].value || quickLinks[index].label;
+            quickLinks[index].url = inputs[1].value || quickLinks[index].url;
+            
+            localStorage.setItem('quickLinks', JSON.stringify(quickLinks));
+            renderLinks();
+        };
+
+        // Initialize
+        function init() {
+            updateGreeting();
+            updateDate();
+            updateClock();
+            renderLinks();
+            
+            document.getElementById('secondsToggle').textContent = 
+                showSeconds ? 'Hide seconds' : 'Show seconds';
+            document.getElementById('cityInput').value = currentCity;
+            
+            if (WEATHER_API_KEY !== 'YOUR_API_KEY_HERE') {
+                fetchWeather(currentCity);
+            } else {
+                document.getElementById('weatherCity').textContent = 'Add API key';
+                document.getElementById('weatherTemp').textContent = '--°';
+            }
+            
+            setInterval(updateClock, 1000);
+            setInterval(updateGreeting, 60000);
+        }
+
+        init();
     </script>
 </body>
 </html>
